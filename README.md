@@ -511,6 +511,19 @@ repeated-seed results, alternative spatial-weight diagnostics, sample
 sensitivity, and an eleven-item evidence checklist. See the
 [statistical rigor methodology](validation/RIGOR.md).
 
+## Step 36: transaction-filter sensitivity
+
+Re-estimate major findings under strict and moderate Cook County market-sale
+definitions:
+
+```bash
+python -m validation.filter_sensitivity
+```
+
+Outputs compare sample size, temporal valuation accuracy, robust coefficients,
+spatial dependence, and CTA/lake findings. See the
+[filter sensitivity methodology](validation/FILTER_SENSITIVITY.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
