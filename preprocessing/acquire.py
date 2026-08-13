@@ -22,7 +22,7 @@ SOCRATA_DOMAIN = "https://datacatalog.cookcountyil.gov"
 DATASETS = {
     "sales": {
         "id": "wvhk-k5uv",
-        "columns": "pin,year,township_code,nbhd,class,sale_date,is_mydec_date,sale_price,doc_no,deed_type,sale_filter_same_sale_within_365,sale_filter_less_than_10k,sale_filter_deed_type",
+        "columns": "pin,year,township_code,nbhd,class,sale_date,is_mydec_date,sale_price,doc_no,deed_type,mydec_deed_type,is_multisale,num_parcels_sale,sale_type,sale_filter_same_sale_within_365,sale_filter_less_than_10k,sale_filter_deed_type,row_id",
     },
     "characteristics": {
         "id": "x54s-btds",

@@ -74,3 +74,25 @@ pytest
 - [CTA GTFS](https://www.transitchicago.com/developers/gtfs/)
 
 PINs are read and stored as strings and normalized to exactly 14 digits.
+
+## Step 2: analytical population
+
+Classify every raw sale without silently dropping records:
+
+```bash
+python -m preprocessing.population
+```
+
+This writes a year-partitioned table to
+`data/processed/residential_sales_population`. Each row is labeled `market`,
+`ambiguous`, or `excluded`, with machine-readable reasons. The primary market
+population defaults to single-family homes and townhouses. Small multi-family
+classes can be included for a separate sensitivity run:
+
+```bash
+python -m preprocessing.population --include-small-multifamily \
+  --output data/processed/residential_sales_population_with_multifamily
+```
+
+See [the complete population rules](preprocessing/POPULATION_RULES.md) for
+class definitions, precedence, and every exclusion rule.
