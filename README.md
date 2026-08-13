@@ -270,3 +270,15 @@ python -m spatial.autocorrelation --tract-polygons path/to/tracts.geojson
 Outputs include Moran's I results, the spatial audit sample, scatter plots, and
 the residual-dependence conclusion. See the
 [spatial autocorrelation methodology](spatial/AUTOCORRELATION.md).
+
+## Step 16: spatial lag model
+
+Estimate the SAR model and compare it with hedonic OLS:
+
+```bash
+python -m spatial.lag_model
+```
+
+Outputs include rho and impact multipliers, OLS/SAR fit and residual-dependence
+comparisons, spatial-block predictions, and future deployment cautions. See the
+[spatial lag methodology](spatial/SPATIAL_LAG.md).
