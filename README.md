@@ -152,3 +152,16 @@ python -m market.exploratory
 Results are written under `data/processed/exploration`, including
 `market_exploration.html`, CSV tables, and PNG figures. See the
 [exploration methodology](market/EXPLORATION.md).
+
+## Step 7: baseline valuation models
+
+Train and evaluate the four simple benchmarks with a held-out future period:
+
+```bash
+python -m ml.baselines
+# Or reserve multiple recent years:
+python -m ml.baselines --test-start-year 2022
+```
+
+Predictions, metrics, and fitted median lookup tables are written under
+`data/processed/baselines`. See [the baseline methodology](ml/BASELINES.md).
