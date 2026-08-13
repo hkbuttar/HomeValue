@@ -536,6 +536,18 @@ Outputs include PIN/year match coverage, assessment errors by price and
 geography, and a same-sale model comparison. See the
 [assessment comparison methodology](assessment/COMPARISON.md).
 
+## Step 38: results and honest comparison
+
+Synthesize the evidence into thirteen explicitly classified conclusions:
+
+```bash
+python -m reporting.results
+```
+
+The generator writes JSON, Markdown, and a Jupyter research notebook, labeling
+each answer Robust, Suggestive, Exploratory, or Data-limited. See the
+[results methodology](reporting/RESULTS.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
