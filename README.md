@@ -486,6 +486,18 @@ The analysis compares 0.25, 0.5, 1, and 2-mile comparable radii, separating
 marginal accuracy gains from expanded coverage on a common target sample. See
 the [information-decay methodology](spillovers/INFORMATION_DECAY.md).
 
+## Step 34: main model benchmark
+
+Build the primary prediction-versus-explanation comparison table:
+
+```bash
+python -m benchmark.models
+```
+
+The table compares seven model families using predictive error, residual
+spatial autocorrelation, and temporal and spatial holdout availability. See the
+[model benchmark methodology](benchmark/MODELS.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:

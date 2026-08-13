@@ -136,6 +136,10 @@ def regression_metrics(actual: Iterable[float], predicted: Iterable[float]) -> d
         "n": int(len(actual_values)),
         "mae": float(np.mean(np.abs(errors))),
         "median_absolute_error": float(np.median(np.abs(errors))),
+        "median_absolute_percentage_error": (
+            float(np.median(np.abs(errors[nonzero] / actual_values[nonzero])))
+            if nonzero.any() else None
+        ),
         "rmse": float(math.sqrt(np.mean(errors**2))),
         "mape": float(np.mean(np.abs(errors[nonzero] / actual_values[nonzero]))) if nonzero.any() else None,
         "r2": float(1 - np.sum(errors**2) / denominator) if denominator > 0 else None,
