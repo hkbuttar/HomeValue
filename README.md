@@ -295,3 +295,17 @@ python -m spatial.error_model
 Outputs include lambda and rho inference, common fit and residual diagnostics,
 spatial-block predictions for all three models, and a cautious mechanism
 assessment. See [the spatial error methodology](spatial/SPATIAL_ERROR.md).
+
+## Step 18: conditional Spatial Durbin robustness model
+
+Run the diagnostics-gated SDM extension:
+
+```bash
+python -m spatial.durbin_model
+# Explicit sensitivity override:
+python -m spatial.durbin_model --force
+```
+
+The command skips cleanly when earlier spatial evidence is insufficient. When
+justified, it writes SAR/SDM comparisons, WX coefficients, impact multipliers,
+and spatial-block predictions. See [the SDM methodology](spatial/SPATIAL_DURBIN.md).
