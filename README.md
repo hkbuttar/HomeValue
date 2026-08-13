@@ -177,3 +177,16 @@ python -m hedonic.model
 Predictions, robust coefficient estimates, confidence intervals, model schema,
 and evaluation metrics are written under `data/processed/hedonic`. See the
 [hedonic model methodology](hedonic/HEDONIC_MODEL.md).
+
+## Step 9: property versus neighborhood decomposition
+
+Fit the nested property, market, neighborhood, and accessibility specifications:
+
+```bash
+python -m hedonic.decomposition
+```
+
+The output directly reports the incremental R², adjusted R², future-period MAE,
+and RMSE contributed by each feature group. Model D remains explicitly
+unavailable until accessibility features exist. See the
+[decomposition methodology](hedonic/DECOMPOSITION.md).

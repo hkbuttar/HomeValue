@@ -20,6 +20,17 @@ class HedonicConfig:
     minimum_category_count: int = 20
     maximum_neighborhood_categories: int = 150
     robust_covariance: str = "HC3"
+    include_time: bool = True
+    include_property_type: bool = True
+    include_neighborhood: bool = True
+    include_accessibility: bool = False
+
+
+ACCESSIBILITY_FEATURES = (
+    "cta_distance", "cta_distance_miles", "lake_distance", "lake_distance_miles",
+    "downtown_distance", "downtown_distance_miles", "park_distance",
+    "park_distance_miles", "cta_stations_half_mile", "cta_stations_one_mile",
+)
 
 
 class HedonicModel:
@@ -36,8 +47,7 @@ class HedonicModel:
         self.result_ = None
         self.smearing_factor_: float | None = None
 
-    @staticmethod
-    def _derived_numeric(frame: pd.DataFrame) -> dict[str, pd.Series]:
+    def _derived_numeric(self, frame: pd.DataFrame) -> dict[str, pd.Series]:
         def numeric(column: str) -> pd.Series:
             if column not in frame:
                 return pd.Series(np.nan, index=frame.index, dtype="float64")
@@ -45,7 +55,7 @@ class HedonicModel:
 
         sqft = numeric("building_sqft")
         land = numeric("land_sqft")
-        return {
+        derived = {
             "log_building_sqft": np.log(sqft.where(sqft.gt(0))),
             "log_land_sqft": np.log(land.where(land.gt(0))),
             "bedrooms": numeric("bedrooms"),
@@ -57,6 +67,16 @@ class HedonicModel:
                 "has_basement", pd.Series(pd.NA, index=frame.index)
             ).astype("boolean").astype("Float64").astype(float),
         }
+        if self.config.include_accessibility:
+            for column in ACCESSIBILITY_FEATURES:
+                if column not in frame:
+                    continue
+                values = numeric(column)
+                if "distance" in column:
+                    derived[f"log1p_{column}"] = np.log1p(values.where(values.ge(0)))
+                else:
+                    derived[column] = values
+        return derived
 
     def _fit_schema(self, frame: pd.DataFrame) -> None:
         derived = self._derived_numeric(frame)
@@ -72,7 +92,7 @@ class HedonicModel:
             years = pd.to_numeric(frame["year"], errors="coerce")
         else:
             years = pd.to_datetime(frame["sale_date"], errors="coerce").dt.year
-        self.year_origin_ = int(years.dropna().min())
+        self.year_origin_ = int(years.dropna().min()) if self.config.include_time else 0
 
         property_column = next(
             (column for column in ("residence_type", "class") if column in frame), None
@@ -80,17 +100,21 @@ class HedonicModel:
         neighborhood_column = next(
             (column for column in ("nbhd", "census_tract") if column in frame), None
         )
-        candidates = {
-            "property_type": property_column,
-            "neighborhood": neighborhood_column,
-        }
-        sale_month = pd.to_datetime(frame["sale_date"], errors="coerce").dt.month.astype("Int64")
-        category_values = {"sale_month": sale_month.astype("string")}
+        candidates = {}
+        if self.config.include_property_type:
+            candidates["property_type"] = property_column
+        if self.config.include_neighborhood:
+            candidates["neighborhood"] = neighborhood_column
+        category_values = {}
+        if self.config.include_time:
+            sale_month = pd.to_datetime(frame["sale_date"], errors="coerce").dt.month.astype("Int64")
+            category_values["sale_month"] = sale_month.astype("string")
         for feature, source in candidates.items():
             if source:
                 category_values[feature] = frame[source].astype("string")
                 self.category_sources_[feature] = source
-        self.category_sources_["sale_month"] = "__sale_month__"
+        if self.config.include_time:
+            self.category_sources_["sale_month"] = "__sale_month__"
 
         for feature, values in category_values.items():
             counts = values.dropna().value_counts()
@@ -111,12 +135,13 @@ class HedonicModel:
         design = pd.DataFrame({"intercept": 1.0}, index=frame.index)
         for name in self.numeric_sources_:
             design[name] = derived[name].fillna(self.imputations_[name]).astype(float)
-        years = (
-            pd.to_numeric(frame["year"], errors="coerce")
-            if "year" in frame
-            else pd.to_datetime(frame["sale_date"], errors="coerce").dt.year
-        )
-        design["year_trend"] = years.fillna(self.year_origin_) - self.year_origin_
+        if self.config.include_time:
+            years = (
+                pd.to_numeric(frame["year"], errors="coerce")
+                if "year" in frame
+                else pd.to_datetime(frame["sale_date"], errors="coerce").dt.year
+            )
+            design["year_trend"] = years.fillna(self.year_origin_) - self.year_origin_
 
         for feature, levels in self.category_levels_.items():
             if feature == "sale_month":
@@ -252,4 +277,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
