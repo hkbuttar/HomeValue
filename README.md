@@ -127,3 +127,15 @@ This writes `data/processed/core_sales.parquet` and a schema report containing
 column types and missingness. Property, location, tract-neighborhood, and basic
 calendar-market features are included when present in the acquired sources.
 See [the core table construction rules](preprocessing/CORE_SALES_SCHEMA.md).
+
+## Step 5: data-quality audit
+
+Run the formal audit before modeling:
+
+```bash
+python -m preprocessing.quality
+```
+
+Outputs under `data/processed/quality` include a browsable
+`data_quality_report.html`, full JSON metrics, and a Parquet copy of the sales
+with non-destructive `dq_*` flags. See [the audit methodology](preprocessing/DATA_QUALITY.md).
