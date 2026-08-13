@@ -498,6 +498,19 @@ The table compares seven model families using predictive error, residual
 spatial autocorrelation, and temporal and spatial holdout availability. See the
 [model benchmark methodology](benchmark/MODELS.md).
 
+## Step 35: statistical rigor
+
+Audit uncertainty, stability, holdouts, and sensitivity evidence:
+
+```bash
+python -m validation.rigor
+```
+
+Outputs include bootstrap metric intervals, paired model comparisons,
+repeated-seed results, alternative spatial-weight diagnostics, sample
+sensitivity, and an eleven-item evidence checklist. See the
+[statistical rigor methodology](validation/RIGOR.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
