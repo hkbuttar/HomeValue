@@ -143,16 +143,25 @@ def construct_core_sales(
         "acs_lag_years": "acs_lag_years",
         "acs_alignment_status": "acs_alignment_status",
         "median_household_income": "median_household_income",
+        "poverty_universe": "poverty_universe",
+        "poverty_population": "poverty_population",
         "owner_occupied_units": "owner_occupied_units",
+        "renter_occupied_units": "renter_occupied_units",
         "occupied_units": "occupied_units",
         "vacant_units": "vacant_units",
         "housing_units": "housing_units",
         "population": "tract_population",
+        "average_household_size": "average_household_size",
+        "median_year_structure_built": "median_year_structure_built",
         "population_25_plus": "population_25_plus",
         "bachelors_degree": "bachelors_degree",
         "masters_degree": "masters_degree",
         "professional_degree": "professional_degree",
         "doctorate_degree": "doctorate_degree",
+        "commuters_total": "commuters_total",
+        "commuters_drove_alone": "commuters_drove_alone",
+        "commuters_carpooled": "commuters_carpooled",
+        "commuters_public_transit": "commuters_public_transit",
     }
     result = result.merge(
         _select_and_rename(acs, acs_mapping), on="sale_id", how="left", validate="one_to_one"
@@ -229,4 +238,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

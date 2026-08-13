@@ -36,16 +36,25 @@ DATASETS = {
 ACS_VARIABLES = {
     "NAME": "name",
     "B19013_001E": "median_household_income",
+    "B17001_001E": "poverty_universe",
+    "B17001_002E": "poverty_population",
     "B25003_002E": "owner_occupied_units",
+    "B25003_003E": "renter_occupied_units",
     "B25003_001E": "occupied_units",
     "B25002_003E": "vacant_units",
     "B25002_001E": "housing_units",
     "B01003_001E": "population",
+    "B25010_001E": "average_household_size",
+    "B25035_001E": "median_year_structure_built",
     "B15003_022E": "bachelors_degree",
     "B15003_023E": "masters_degree",
     "B15003_024E": "professional_degree",
     "B15003_025E": "doctorate_degree",
     "B15003_001E": "population_25_plus",
+    "B08301_001E": "commuters_total",
+    "B08301_003E": "commuters_drove_alone",
+    "B08301_004E": "commuters_carpooled",
+    "B08301_010E": "commuters_public_transit",
 }
 
 

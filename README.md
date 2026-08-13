@@ -190,3 +190,16 @@ The output directly reports the incremental R², adjusted R², future-period MAE
 and RMSE contributed by each feature group. Model D remains explicitly
 unavailable until accessibility features exist. See the
 [decomposition methodology](hedonic/DECOMPOSITION.md).
+
+## Step 10: ACS neighborhood layer
+
+Engineer the limited tract-level socioeconomic, housing, and commuting feature
+set and inspect its multicollinearity diagnostics:
+
+```bash
+python -m neighborhood.acs
+```
+
+Outputs include the ACS feature table, an ACS-enriched core sales table, and a
+JSON coverage/correlation/VIF report under `data/processed/acs_neighborhood`.
+See [the ACS feature methodology](neighborhood/ACS_FEATURES.md).
