@@ -310,6 +310,19 @@ The command skips cleanly when earlier spatial evidence is insufficient. When
 justified, it writes SAR/SDM comparisons, WX coefficients, impact multipliers,
 and spatial-block predictions. See [the SDM methodology](spatial/SPATIAL_DURBIN.md).
 
+## Step 20: nonlinear valuation models
+
+Train Random Forest, HistGradientBoosting, and XGBoost on the shared future
+holdout:
+
+```bash
+python -m ml.valuation
+```
+
+Outputs include held-out predictions, serialized preprocessing/models, metrics,
+approved feature groups, and comparisons with available earlier model artifacts.
+See [the ML valuation methodology](ml/VALUATION_MODELS.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
