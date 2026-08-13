@@ -139,3 +139,16 @@ python -m preprocessing.quality
 Outputs under `data/processed/quality` include a browsable
 `data_quality_report.html`, full JSON metrics, and a Parquet copy of the sales
 with non-destructive `dq_*` flags. See [the audit methodology](preprocessing/DATA_QUALITY.md).
+
+## Step 6: exploratory market analysis
+
+Generate grouped summaries, repeat-sale diagnostics, charts, and the spatial
+market overview:
+
+```bash
+python -m market.exploratory
+```
+
+Results are written under `data/processed/exploration`, including
+`market_exploration.html`, CSV tables, and PNG figures. See the
+[exploration methodology](market/EXPLORATION.md).
