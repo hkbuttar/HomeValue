@@ -69,6 +69,13 @@ def build_market_profiles(sales: pd.DataFrame, indices: pd.DataFrame | None = No
         )
     else:
         frame["_single_family"] = np.nan
+    contextual_features = (
+        "median_household_income", "owner_occupancy_rate", "population_density",
+        "cta_distance_miles", "transit_commute_share",
+    )
+    for column in contextual_features:
+        if column in frame:
+            frame[column] = pd.to_numeric(frame[column], errors="coerce")
     grouped = frame.groupby(geography, observed=True)
     profiles = grouped.agg(
         sale_count=("sale_id", "size"),
@@ -80,15 +87,9 @@ def build_market_profiles(sales: pd.DataFrame, indices: pd.DataFrame | None = No
     ).reset_index()
     years_observed = (profiles["latest_sale_year"] - profiles["first_sale_year"] + 1).clip(lower=1)
     profiles["annual_sale_velocity"] = profiles["sale_count"] / years_observed
-    for source, target in (
-        ("median_household_income", "median_household_income"),
-        ("owner_occupancy_rate", "owner_occupancy_rate"),
-        ("population_density", "population_density"),
-        ("cta_distance_miles", "cta_distance_miles"),
-        ("transit_commute_share", "transit_commute_share"),
-    ):
+    for source in contextual_features:
         if source in frame:
-            values = grouped[source].median().rename(target).reset_index()
+            values = grouped[source].median().rename(source).reset_index()
             profiles = profiles.merge(values, on=geography, how="left", validate="one_to_one")
     if indices is not None and len(indices):
         index_geography = geography if geography in indices else _geography(indices)

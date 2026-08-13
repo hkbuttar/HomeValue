@@ -34,3 +34,27 @@ def test_reports_error_across_market_segments_and_flags_small_groups(tmp_path):
     assert (output / "predictions_with_segments.parquet").exists()
     parsed = json.loads((output / "error_segment_results.json").read_text())
     assert parsed["models"] == ["model_a", "model_b"]
+
+
+def test_merges_segment_archetypes_across_numeric_and_text_geography_keys(tmp_path):
+    features = ml_frame()
+    features["nbhd"] = features["nbhd"].str.removeprefix("N").astype(int)
+    predictions = features[["sale_id", "sale_date", "year", "sale_price"]].copy()
+    predictions["prediction_model"] = predictions["sale_price"]
+    segments = pd.DataFrame({
+        "nbhd": ["1", "2", "3"],
+        "archetype": ["Core", "Middle", "Outer"],
+    })
+    feature_path = tmp_path / "features.parquet"
+    prediction_path = tmp_path / "predictions.parquet"
+    segment_path = tmp_path / "segments.parquet"
+    features.to_parquet(feature_path, index=False)
+    predictions.to_parquet(prediction_path, index=False)
+    segments.to_parquet(segment_path, index=False)
+
+    report = analyze_error_segments(
+        prediction_path, feature_path, tmp_path / "errors", segment_path,
+        ErrorSegmentConfig(minimum_group_size=1),
+    )
+
+    assert "market_archetype" in report["dimensions"]

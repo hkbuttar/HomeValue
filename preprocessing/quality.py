@@ -64,7 +64,12 @@ def _feature_profile(frame: pd.DataFrame, column: str) -> dict[str, Any]:
         "unique": int(series.nunique(dropna=True)),
     }
     numeric = pd.to_numeric(series, errors="coerce")
-    if pd.api.types.is_numeric_dtype(series) and numeric.notna().any():
+    if pd.api.types.is_bool_dtype(series):
+        profile["top_values"] = {
+            str(key): int(value)
+            for key, value in series.astype("string").value_counts().items()
+        }
+    elif pd.api.types.is_numeric_dtype(series) and numeric.notna().any():
         quantiles = numeric.quantile([0, 0.01, 0.25, 0.5, 0.75, 0.99, 1])
         profile["distribution"] = {
             "count": int(numeric.count()),

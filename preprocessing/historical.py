@@ -160,7 +160,16 @@ def _read_parquet(path: Path) -> pd.DataFrame:
             if year_parts:
                 frame["acs_year"] = int(year_parts[-1].split("=", 1)[1])
         frames.append(frame)
-    return pd.concat(frames, ignore_index=True)
+    combined = pd.concat(frames, ignore_index=True)
+    # Socrata may infer a code column as numeric in one response page and text
+    # in another (for example, parcel class includes both 234 and "EX").
+    # Arrow cannot write an object column containing both Python integers and
+    # strings, so preserve such identifier-like values uniformly as text.
+    for column in combined.select_dtypes(include="object"):
+        value_types = combined[column].dropna().map(type)
+        if value_types.eq(str).any() and value_types.ne(str).any():
+            combined[column] = combined[column].astype("string")
+    return combined
 
 
 def build_historical_alignment(

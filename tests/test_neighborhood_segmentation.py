@@ -3,7 +3,11 @@ import json
 import numpy as np
 import pandas as pd
 
-from segmentation.neighborhoods import SegmentationConfig, segment_neighborhoods
+from segmentation.neighborhoods import (
+    SegmentationConfig,
+    build_market_profiles,
+    segment_neighborhoods,
+)
 
 
 def segmentation_data():
@@ -58,3 +62,13 @@ def test_clusters_markets_validates_and_names_after_fit(tmp_path):
     parsed = json.loads((output / "segmentation_report.json").read_text())
     assert parsed["naming_rule"].startswith("Names were generated after fitting")
 
+
+def test_market_profiles_coerce_numeric_context_from_source_text():
+    sales, indices = segmentation_data()
+    sales["median_household_income"] = sales["median_household_income"].astype("string")
+    sales.loc[sales.index[0], "median_household_income"] = "not available"
+
+    profiles, _ = build_market_profiles(sales, indices)
+
+    assert pd.api.types.is_numeric_dtype(profiles["median_household_income"])
+    assert profiles["median_household_income"].notna().all()

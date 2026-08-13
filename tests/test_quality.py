@@ -51,6 +51,18 @@ def test_profiles_include_distribution_history_and_join_rates():
     assert report["join_success_rate"]["acs"] == 0.75
 
 
+def test_profiles_boolean_features_as_counts_not_numeric_quantiles():
+    frame = quality_frame().assign(
+        source_flag=pd.array([True, False, None, True], dtype="boolean")
+    )
+
+    _, report = audit_sales(frame)
+
+    profile = report["feature_profiles"]["source_flag"]
+    assert profile["top_values"] == {"True": 2, "False": 1}
+    assert "distribution" not in profile
+
+
 def test_report_builder_writes_html_json_and_flags(tmp_path):
     source = tmp_path / "core.parquet"
     quality_frame().to_parquet(source, index=False)

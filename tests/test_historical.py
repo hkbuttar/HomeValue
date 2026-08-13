@@ -3,6 +3,7 @@ import pytest
 
 from preprocessing.historical import (
     AlignmentPolicy,
+    _read_parquet,
     align_snapshots,
     build_historical_alignment,
     stable_sale_id,
@@ -95,3 +96,14 @@ def test_end_to_end_alignment_writes_linked_tables(tmp_path):
     assert report["alignment_status"]["property"] == {"historical": 1}
     assert (tmp_path / "out/acs.parquet").exists()
 
+
+def test_read_parquet_normalizes_mixed_socrata_code_pages(tmp_path):
+    source = tmp_path / "pages"
+    source.mkdir()
+    pd.DataFrame({"pin": ["1"], "class": [234]}).to_parquet(source / "part-0.parquet")
+    pd.DataFrame({"pin": ["2"], "class": ["EX"]}).to_parquet(source / "part-1.parquet")
+
+    combined = _read_parquet(source)
+
+    assert combined["class"].tolist() == ["234", "EX"]
+    combined.to_parquet(tmp_path / "combined.parquet", index=False)

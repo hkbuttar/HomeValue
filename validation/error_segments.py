@@ -125,6 +125,8 @@ def analyze_error_segments(
         segments = pd.read_parquet(segments_path)
         geography = next((column for column in ("nbhd", "census_tract", "community_area") if column in frame and column in segments), None)
         if geography and "archetype" in segments:
+            frame[geography] = frame[geography].astype("string")
+            segments[geography] = segments[geography].astype("string")
             frame = frame.merge(
                 segments[[geography, "archetype"]].drop_duplicates(geography),
                 on=geography, how="left", validate="many_to_one",
