@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -88,3 +89,29 @@ class ModelPerformanceResponse(StrictSchema):
     mdape: float | None = Field(default=None, ge=0)
     temporal_tested: bool
     spatial_tested: bool
+
+
+class RecordCollection(StrictSchema):
+    count: int = Field(ge=0)
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=500)
+    records: list[dict[str, Any]]
+
+
+class MarketOverviewResponse(StrictSchema):
+    latest_year: int | None = None
+    geography_count: int = Field(ge=0)
+    transaction_count: int = Field(ge=0)
+    median_sale_price: float | None = Field(default=None, ge=0)
+    median_ppsf: float | None = Field(default=None, ge=0)
+
+
+class NeighborhoodDetailResponse(StrictSchema):
+    neighborhood_id: str
+    price_history: list[dict[str, Any]]
+    segment: dict[str, Any] | None = None
+
+
+class ResearchResponse(StrictSchema):
+    available: bool
+    results: dict[str, Any]

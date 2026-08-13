@@ -572,6 +572,17 @@ from engine import HomeValueEngine
 The engine returns a point estimate, calibrated range, reconciled property/place
 drivers, and strictly prior nearby sales. See the [engine design](engine/ENGINE.md).
 
+## Step 41: FastAPI backend
+
+Expose valuation and market intelligence through typed HTTP endpoints:
+
+```bash
+uvicorn api.app:app --reload
+```
+
+Interactive OpenAPI documentation is available at `/docs`. See the
+[backend documentation](api/API.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
