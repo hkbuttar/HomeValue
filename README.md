@@ -360,6 +360,18 @@ Outputs include the neighborhood-year panel, growth co-movement correlations,
 divergence rankings, a trajectory chart, and coverage diagnostics. See the
 [neighborhood index methodology](neighborhood/PRICE_INDEX.md).
 
+## Step 24: neighborhood market segmentation
+
+Cluster neighborhood market profiles and validate the archetypes:
+
+```bash
+python -m segmentation.neighborhoods
+```
+
+Outputs include neighborhood assignments, cluster profiles, silhouette model
+selection, bootstrap stability, post-fit archetype names, and a profile chart.
+See [the segmentation methodology](segmentation/NEIGHBORHOODS.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
