@@ -560,6 +560,18 @@ The suite includes exact synthetic geography, leakage, split-integrity,
 interval-coverage, and typed API-schema checks. See the
 [testing matrix](validation/TESTING.md).
 
+## Step 40: unified HomeValue engine
+
+Load the validated model, interval calibration, market context, explanations,
+and prior comparables through one inference interface:
+
+```python
+from engine import HomeValueEngine
+```
+
+The engine returns a point estimate, calibrated range, reconciled property/place
+drivers, and strictly prior nearby sales. See the [engine design](engine/ENGINE.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:

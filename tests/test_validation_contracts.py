@@ -55,6 +55,7 @@ def test_api_valuation_contract_rejects_invalid_inputs_and_intervals():
     with pytest.raises(ValidationError, match="must contain"):
         ValuationResponse(
             estimated_value=600000, lower_interval=620000, upper_interval=680000,
+            baseline_market_value=300000,
             property_component=300000, location_component=200000,
             time_market_component=100000, confidence=.9, model_name="test",
         )

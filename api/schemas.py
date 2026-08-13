@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import date
+
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
@@ -22,6 +24,7 @@ class ValuationRequest(StrictSchema):
     municipality: str | None = None
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
+    valuation_date: date | None = None
 
     @model_validator(mode="after")
     def coordinates_are_paired(self):
@@ -47,9 +50,11 @@ class ValuationResponse(StrictSchema):
     estimated_value: float = Field(gt=0)
     lower_interval: float = Field(gt=0)
     upper_interval: float = Field(gt=0)
+    baseline_market_value: float = Field(gt=0)
     property_component: float
     location_component: float
     time_market_component: float
+    other_component: float = 0
     confidence: float = Field(ge=0, le=1)
     model_name: str
     value_drivers: list[ValueDriver] = Field(default_factory=list)
@@ -59,6 +64,12 @@ class ValuationResponse(StrictSchema):
     def estimate_is_inside_interval(self):
         if not self.lower_interval <= self.estimated_value <= self.upper_interval:
             raise ValueError("valuation interval must contain estimated_value")
+        reconciled = (
+            self.baseline_market_value + self.property_component + self.location_component
+            + self.time_market_component + self.other_component
+        )
+        if abs(reconciled - self.estimated_value) > max(1e-6 * self.estimated_value, .01):
+            raise ValueError("valuation components must reconcile to estimated_value")
         return self
 
 

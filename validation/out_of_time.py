@@ -114,7 +114,10 @@ def run_out_of_time_validation(input_path: Path, output_dir: Path,
     test_output.to_parquet(output_dir / "final_test_predictions.parquet", index=False)
     joblib.dump(
         {"preprocessor": preprocessor, "models": fitted, "selected_model": selected,
-         "features": final_features},
+         "features": final_features,
+         "smearing_factors": {
+             name: metrics["smearing_factor"] for name, metrics in test_metrics.items()
+         }},
         output_dir / "final_models.joblib",
     )
     report = {

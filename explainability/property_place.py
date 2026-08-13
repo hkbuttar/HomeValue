@@ -49,17 +49,18 @@ def _reference_row(frame: pd.DataFrame, features: list[str]) -> pd.DataFrame:
     return pd.DataFrame([values], columns=features)
 
 
-def _predict_dollars(preprocessor, model, frame: pd.DataFrame) -> float:
+def _predict_dollars(preprocessor, model, frame: pd.DataFrame, smearing_factor: float = 1.0) -> float:
     log_value = float(model.predict(preprocessor.transform(frame))[0])
-    return float(np.exp(np.clip(log_value, 0, 50)))
+    return float(np.exp(np.clip(log_value, 0, 50)) * smearing_factor)
 
 
 def _attributions(target: pd.DataFrame, reference: pd.DataFrame, features: list[str],
-                  preprocessor, model, permutations: int, rng) -> tuple[float, float, dict[str, float]]:
+                  preprocessor, model, permutations: int, rng,
+                  smearing_factor: float = 1.0) -> tuple[float, float, dict[str, float]]:
     if permutations < 1:
         raise ValueError("permutations must be positive")
-    baseline = _predict_dollars(preprocessor, model, reference)
-    estimated = _predict_dollars(preprocessor, model, target)
+    baseline = _predict_dollars(preprocessor, model, reference, smearing_factor)
+    estimated = _predict_dollars(preprocessor, model, target, smearing_factor)
     contributions = {feature: 0.0 for feature in features}
     for _ in range(permutations):
         current = reference.copy()
@@ -67,7 +68,7 @@ def _attributions(target: pd.DataFrame, reference: pd.DataFrame, features: list[
         for position in rng.permutation(len(features)):
             feature = features[int(position)]
             current[feature] = target.iloc[0][feature]
-            next_value = _predict_dollars(preprocessor, model, current)
+            next_value = _predict_dollars(preprocessor, model, current, smearing_factor)
             contributions[feature] += (next_value - previous_value) / permutations
             previous_value = next_value
     # Floating-point reconciliation preserves the exact baseline + contributions identity.
@@ -91,6 +92,7 @@ def decompose_property_values(
     features, preprocessor = artifact["features"], artifact["preprocessor"]
     model_name = artifact.get("selected_model") or next(iter(artifact["models"]))
     model = artifact["models"][model_name]
+    smearing_factor = artifact.get("smearing_factors", {}).get(model_name, 1.0)
     properties, reference_data = pd.read_parquet(properties_path), pd.read_parquet(reference_path)
     missing = sorted(set(features).difference(properties.columns))
     if missing:
@@ -114,7 +116,8 @@ def decompose_property_values(
     for index, property_row in properties.iterrows():
         target = property_row[features].to_frame().T
         baseline, estimated, contributions = _attributions(
-            target, reference, features, preprocessor, model, config.permutations, rng
+            target, reference, features, preprocessor, model, config.permutations, rng,
+            smearing_factor,
         )
         property_id = str(property_row.get("sale_id", index))
         for feature, contribution in contributions.items():
