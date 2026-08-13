@@ -548,6 +548,18 @@ The generator writes JSON, Markdown, and a Jupyter research notebook, labeling
 each answer Robust, Suggestive, Exploratory, or Data-limited. See the
 [results methodology](reporting/RESULTS.md).
 
+## Step 39: testing and validation
+
+Run the complete analytical and API-contract validation gate:
+
+```bash
+MPLCONFIGDIR=/tmp/homevalue-mpl LOKY_MAX_CPU_COUNT=8 python -m pytest -q
+```
+
+The suite includes exact synthetic geography, leakage, split-integrity,
+interval-coverage, and typed API-schema checks. See the
+[testing matrix](validation/TESTING.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
