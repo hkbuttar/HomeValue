@@ -448,6 +448,19 @@ multipliers, permutation and SHAP importance, partial dependence, and a
 cross-method agreement table. See the
 [explainability methodology](explainability/EXPLAINABILITY.md).
 
+## Step 31: property versus place attribution
+
+Decompose individual estimates into a reference baseline and model-derived
+property, place, and time/market contributions:
+
+```bash
+python -m explainability.property_place --sale-id SALE_ID
+```
+
+Outputs include feature-level dollar attributions, reconciled component
+summaries, and the reference market profile. See the
+[property-place attribution methodology](explainability/PROPERTY_PLACE.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
