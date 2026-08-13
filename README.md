@@ -435,6 +435,19 @@ Outputs include sale-level conformal ranges, interval widths, calibration
 curves, and coverage by price group and neighborhood. See the
 [valuation interval methodology](validation/INTERVALS.md).
 
+## Step 30: explainability
+
+Compare what hedonic, spatial, and machine-learning models say drives value:
+
+```bash
+python -m explainability.report
+```
+
+Outputs include coefficient marginal effects, spatial parameters and
+multipliers, permutation and SHAP importance, partial dependence, and a
+cross-method agreement table. See the
+[explainability methodology](explainability/EXPLAINABILITY.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
