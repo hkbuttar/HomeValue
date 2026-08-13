@@ -26,7 +26,7 @@ DATASETS = {
     },
     "characteristics": {
         "id": "x54s-btds",
-        "columns": "pin,year,card,class,char_yrblt,char_bldg_sf,char_land_sf,char_beds,char_fbath,char_hbath,char_type_resd,char_gar1_size,char_bsmt",
+        "columns": "pin,year,card,class,char_yrblt,char_bldg_sf,char_land_sf,char_beds,char_rooms,char_fbath,char_hbath,char_type_resd,char_cnst_qlty,char_gar1_size,char_gar1_att,char_bsmt,char_bsmt_fin,char_ext_wall,char_heat,char_air,char_renovation",
     },
     "parcels": {
         "id": "nj4t-kc8j",

@@ -113,3 +113,17 @@ used unless `--allow-future-snapshots` is explicitly supplied, in which case
 they are labeled `current_state_future`.
 
 See [the historical alignment policy](preprocessing/HISTORICAL_ALIGNMENT.md).
+
+## Step 4: canonical core sales table
+
+Aggregate property cards and join the historically aligned sources into one row
+per market sale:
+
+```bash
+python -m preprocessing.core_sales
+```
+
+This writes `data/processed/core_sales.parquet` and a schema report containing
+column types and missingness. Property, location, tract-neighborhood, and basic
+calendar-market features are included when present in the acquired sources.
+See [the core table construction rules](preprocessing/CORE_SALES_SCHEMA.md).
