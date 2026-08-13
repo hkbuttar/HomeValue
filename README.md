@@ -524,6 +524,18 @@ Outputs compare sample size, temporal valuation accuracy, robust coefficients,
 spatial dependence, and CTA/lake findings. See the
 [filter sensitivity methodology](validation/FILTER_SENSITIVITY.md).
 
+## Step 37: assessor comparison (optional)
+
+Compare aligned Cook County assessed market values with sales and HomeValue:
+
+```bash
+python -m assessment.comparison --assessments PATH_TO_ASSESSED_VALUES.parquet
+```
+
+Outputs include PIN/year match coverage, assessment errors by price and
+geography, and a same-sale model comparison. See the
+[assessment comparison methodology](assessment/COMPARISON.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
