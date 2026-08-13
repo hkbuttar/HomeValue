@@ -474,6 +474,18 @@ Outputs include a specification ladder, full coefficient audit, robustness
 plot, and an explicit conclusion about attenuation after neighborhood controls.
 See the [transit robustness methodology](transit/ROBUSTNESS.md).
 
+## Step 33: spatial valuation-information decay
+
+Measure how far nearby-sale information remains predictively useful:
+
+```bash
+python -m spillovers.decay
+```
+
+The analysis compares 0.25, 0.5, 1, and 2-mile comparable radii, separating
+marginal accuracy gains from expanded coverage on a common target sample. See
+the [information-decay methodology](spillovers/INFORMATION_DECAY.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
