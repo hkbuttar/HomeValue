@@ -256,3 +256,17 @@ python -m accessibility.gradients
 Outputs under `data/processed/amenity_gradients` include predictions, robust
 coefficients, gradient curves, a comparison chart, lakefront decay, and the
 joint downtown-distance test. See [the gradient methodology](accessibility/GRADIENTS.md).
+
+## Step 15: spatial autocorrelation
+
+Test spatial clustering in prices, PPSF, and controlled hedonic residuals:
+
+```bash
+python -m spatial.autocorrelation
+# Optional tract-adjacency alternative:
+python -m spatial.autocorrelation --tract-polygons path/to/tracts.geojson
+```
+
+Outputs include Moran's I results, the spatial audit sample, scatter plots, and
+the residual-dependence conclusion. See the
+[spatial autocorrelation methodology](spatial/AUTOCORRELATION.md).
