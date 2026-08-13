@@ -96,3 +96,20 @@ python -m preprocessing.population --include-small-multifamily \
 
 See [the complete population rules](preprocessing/POPULATION_RULES.md) for
 class definitions, precedence, and every exclusion rule.
+
+## Step 3: historical alignment
+
+Align market sales with contemporaneous or earlier property, parcel, and ACS
+snapshots:
+
+```bash
+python -m preprocessing.historical
+```
+
+The command writes linked sales, improvement-card, parcel, and ACS Parquet
+tables plus an alignment report under `data/processed/historical_alignment`.
+Every match includes its vintage, lag, and status. Future snapshots are never
+used unless `--allow-future-snapshots` is explicitly supplied, in which case
+they are labeled `current_state_future`.
+
+See [the historical alignment policy](preprocessing/HISTORICAL_ALIGNMENT.md).
