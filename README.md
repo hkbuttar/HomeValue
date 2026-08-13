@@ -216,3 +216,17 @@ python -m accessibility.cta
 Outputs under `data/processed/cta_accessibility` include the station table,
 sale-level features, an enriched core table, and a coverage report. See the
 [CTA accessibility methodology](accessibility/CTA_FEATURES.md).
+
+## Step 12: amenity accessibility
+
+Acquire the official Chicago geometry extracts, then add lake, downtown, and
+major-park distances to the CTA-enriched table:
+
+```bash
+python -m accessibility.amenities acquire
+python -m accessibility.amenities build
+```
+
+Outputs under `data/processed/accessibility` include sale-level features, the
+combined accessibility-enriched core table, and a provenance/coverage report.
+See [the amenity accessibility methodology](accessibility/AMENITY_FEATURES.md).
