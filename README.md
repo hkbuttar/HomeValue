@@ -336,6 +336,18 @@ Outputs include the feature table, every contributing prior-sale link, an
 enriched core table, and temporal-leakage validation. See the
 [spatial feature methodology](ml/SPATIAL_FEATURES.md).
 
+## Step 22: repeat-sales analysis
+
+Analyze consecutive same-property transactions and build the robustness index:
+
+```bash
+python -m market.repeat_sales
+```
+
+Outputs include repeat pairs, annual and neighborhood appreciation summaries, a
+simplified repeat-sales index and chart, and model-residual persistence when
+predictions are available. See [the repeat-sales methodology](market/REPEAT_SALES.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
