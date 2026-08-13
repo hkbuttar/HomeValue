@@ -372,6 +372,19 @@ Outputs include neighborhood assignments, cluster profiles, silhouette model
 selection, bootstrap stability, post-fit archetype names, and a profile chart.
 See [the segmentation methodology](segmentation/NEIGHBORHOODS.md).
 
+## Step 25: segment stability over time
+
+Re-estimate neighborhood regimes over historical periods and quantify their
+longitudinal consistency:
+
+```bash
+python -m segmentation.stability
+```
+
+Outputs include aligned neighborhood segment histories, conditional transition
+matrices, persistence rates, and consecutive-period adjusted Rand indices. See
+[the stability methodology](segmentation/STABILITY.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
