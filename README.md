@@ -230,3 +230,16 @@ python -m accessibility.amenities build
 Outputs under `data/processed/accessibility` include sale-level features, the
 combined accessibility-enriched core table, and a provenance/coverage report.
 See [the amenity accessibility methodology](accessibility/AMENITY_FEATURES.md).
+
+## Step 13: CTA accessibility premium
+
+Compare linear, banded, cubic-spline, and GAM-style CTA distance effects using
+the same future holdout:
+
+```bash
+python -m transit.premium
+```
+
+Outputs under `data/processed/cta_premium` include predictions, robust
+coefficients, premium curves with confidence intervals, a chart, and evidence
+flags. See [the CTA premium methodology](transit/CTA_PREMIUM.md).
