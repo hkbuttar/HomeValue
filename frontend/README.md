@@ -12,3 +12,9 @@ Requires Node.js 20.9 or newer. The app provides the Chicago market overview,
 property valuation, neighborhood segments, spatial lab, and model research
 views. Set `NEXT_PUBLIC_API_URL` when FastAPI is not running at
 `http://localhost:8000`.
+
+For a production image, pass the public API URL at build time:
+
+```bash
+docker build --build-arg NEXT_PUBLIC_API_URL=https://api.example.com -t homevalue-web .
+```

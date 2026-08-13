@@ -597,6 +597,19 @@ The App Router interface includes Chicago market, valuation, neighborhood,
 spatial-lab, and research views backed by FastAPI. See
 [frontend setup](frontend/README.md).
 
+## Step 43: lightweight deployment
+
+Run the production-shaped FastAPI and Next.js containers against a read-only
+bundle of processed artifacts:
+
+```bash
+docker compose up --build
+```
+
+Raw historical data is excluded from both images. Production requests consume
+precomputed Parquet summaries, spatial outputs, and trained-model artifacts.
+See the [deployment guide](DEPLOYMENT.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
