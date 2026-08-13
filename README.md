@@ -309,3 +309,15 @@ python -m spatial.durbin_model --force
 The command skips cleanly when earlier spatial evidence is insufficient. When
 justified, it writes SAR/SDM comparisons, WX coefficients, impact multipliers,
 and spatial-block predictions. See [the SDM methodology](spatial/SPATIAL_DURBIN.md).
+
+## Step 19: local comparable-sales engine
+
+Build leakage-safe traditional comparable valuations:
+
+```bash
+python -m spillovers.comps
+```
+
+Outputs include sale-level predictions, every selected comparable and weight,
+coverage/fallback diagnostics, and latest-year metrics. See the
+[comparable-sales methodology](spillovers/COMPARABLES.md).
