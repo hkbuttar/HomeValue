@@ -398,6 +398,18 @@ Outputs include validation predictions, final-test predictions, fitted models,
 and separate metrics for all three nonlinear valuation families. See the
 [out-of-time validation methodology](validation/OUT_OF_TIME.md).
 
+## Step 27: spatial holdout validation
+
+Compare random, future-period, and geographically grouped validation:
+
+```bash
+python -m validation.spatial_holdout
+```
+
+The benchmark creates grouped folds for tracts, assessor neighborhoods, and
+municipalities when available, then reports each model's error penalty relative
+to random folds. See the [spatial holdout methodology](validation/SPATIAL_HOLDOUT.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
