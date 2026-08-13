@@ -348,6 +348,18 @@ Outputs include repeat pairs, annual and neighborhood appreciation summaries, a
 simplified repeat-sales index and chart, and model-residual persistence when
 predictions are available. See [the repeat-sales methodology](market/REPEAT_SALES.md).
 
+## Step 23: neighborhood price indices
+
+Build median-PPSF, property-adjusted, and repeat-sales neighborhood indices:
+
+```bash
+python -m neighborhood.price_index
+```
+
+Outputs include the neighborhood-year panel, growth co-movement correlations,
+divergence rankings, a trajectory chart, and coverage diagnostics. See the
+[neighborhood index methodology](neighborhood/PRICE_INDEX.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
