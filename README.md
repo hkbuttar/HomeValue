@@ -243,3 +243,16 @@ python -m transit.premium
 Outputs under `data/processed/cta_premium` include predictions, robust
 coefficients, premium curves with confidence intervals, a chart, and evidence
 flags. See [the CTA premium methodology](transit/CTA_PREMIUM.md).
+
+## Step 14: lakefront and downtown gradients
+
+Estimate continuous linear and nonlinear price gradients for Lake Michigan and
+downtown proximity:
+
+```bash
+python -m accessibility.gradients
+```
+
+Outputs under `data/processed/amenity_gradients` include predictions, robust
+coefficients, gradient curves, a comparison chart, lakefront decay, and the
+joint downtown-distance test. See [the gradient methodology](accessibility/GRADIENTS.md).

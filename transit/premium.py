@@ -25,8 +25,9 @@ BAND_LABELS = ("0-0.25", "0.25-0.50", "0.50-1.00", "1.00-2.00", "over-2.00")
 class DistanceBasis:
     """Train-fitted distance representation used by one premium specification."""
 
-    def __init__(self, kind: str):
+    def __init__(self, kind: str, prefix: str = "cta"):
         self.kind = kind
+        self.prefix = prefix
         self.mean_: float | None = None
         self.scale_: float | None = None
         self.knots_: np.ndarray | None = None
@@ -38,17 +39,17 @@ class DistanceBasis:
         if not np.isfinite(values).all():
             raise ValueError("distance basis requires complete finite training distances")
         if self.kind == "linear":
-            self.columns_ = ["cta_distance_linear"]
+            self.columns_ = [f"{self.prefix}_distance_linear"]
         elif self.kind == "bands":
             # The >2-mile band is the omitted reference.
-            self.columns_ = [f"cta_band={label}" for label in BAND_LABELS[:-1]]
+            self.columns_ = [f"{self.prefix}_band={label}" for label in BAND_LABELS[:-1]]
         elif self.kind == "cubic_spline":
             self.mean_ = float(values.mean())
             self.scale_ = float(values.std()) or 1.0
             standardized = (values[:, 0] - self.mean_) / self.scale_
             self.knots_ = np.unique(np.quantile(standardized, [0.25, 0.5, 0.75]))
-            self.columns_ = ["cta_spline=x", "cta_spline=x2", "cta_spline=x3"] + [
-                f"cta_spline=hinge_{index}" for index in range(len(self.knots_))
+            self.columns_ = [f"{self.prefix}_spline=x", f"{self.prefix}_spline=x2", f"{self.prefix}_spline=x3"] + [
+                f"{self.prefix}_spline=hinge_{index}" for index in range(len(self.knots_))
             ]
         elif self.kind == "gam_style":
             unique = np.unique(values)
@@ -57,7 +58,7 @@ class DistanceBasis:
                 n_knots=knots, degree=3, knots="quantile", include_bias=False,
                 extrapolation="linear",
             ).fit(values)
-            self.columns_ = [f"cta_gam_basis_{index}" for index in range(self.spline_.n_features_out_)]
+            self.columns_ = [f"{self.prefix}_gam_basis_{index}" for index in range(self.spline_.n_features_out_)]
         else:
             raise ValueError(f"unknown distance basis: {self.kind}")
         return self
