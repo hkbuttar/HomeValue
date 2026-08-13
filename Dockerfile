@@ -8,7 +8,8 @@ WORKDIR /app
 
 RUN addgroup --system homevalue && \
     adduser --system --ingroup homevalue --home /home/homevalue \
-      --shell /bin/bash homevalue
+      --shell /bin/bash homevalue && \
+    install -d -m 0700 -o homevalue -g homevalue /home/homevalue/.ssh
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
