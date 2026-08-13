@@ -41,6 +41,11 @@ def _write_artifacts(root):
     parquet("segmentation/neighborhood_segments.parquet", pd.DataFrame({
         "nbhd": ["N1", "N2"], "cluster": [0, 1], "archetype": ["Growth", "Affordable"],
     }))
+    parquet("accessibility/core_sales_with_accessibility.parquet", pd.DataFrame({
+        "nbhd": ["N1", "N1", "N2"],
+        "community_area": ["HYDE PARK", "KENWOOD", None],
+        "municipality": ["CHICAGO", "CHICAGO", "EVANSTON"],
+    }))
     csv("benchmark/model_benchmark.csv", pd.DataFrame({"model": ["Hedonic OLS"], "mae": [42000]}))
     csv("validation/error_segments/segment_error_metrics.csv", pd.DataFrame({
         "model": ["xgboost"], "dimension": ["neighborhood"], "segment": ["N1"], "mae": [40000],
@@ -67,6 +72,10 @@ def test_api_exposes_typed_valuation_and_research_endpoints(tmp_path):
     valuation = client.post("/valuation/predict", json={"building_sqft": 1800})
     assert valuation.status_code == 200
     assert valuation.json()["estimated_value"] == 600000
+    options = client.get("/valuation/neighborhoods").json()
+    assert options["count"] == 2
+    assert options["records"][0]["label"] == "Evanston — area N2"
+    assert options["records"][1]["label"] == "Hyde Park — area N1"
     assert client.get("/market/summary").json() == {
         "latest_year": 2021, "geography_count": 2, "transaction_count": 20,
         "median_sale_price": 290000.0, "median_ppsf": 200.0,
@@ -89,7 +98,8 @@ def test_api_documents_routes_and_handles_missing_engine_artifacts(tmp_path):
     assert response.status_code == 503
     schema = client.get("/openapi.json").json()
     expected = {
-        "/valuation/predict", "/market/summary", "/market/neighborhood/{neighborhood_id}",
+        "/valuation/predict", "/valuation/neighborhoods",
+        "/market/summary", "/market/neighborhood/{neighborhood_id}",
         "/market/comparables/{pin}", "/models/performance", "/models/spatial",
         "/models/errors", "/accessibility/transit", "/accessibility/lake",
         "/neighborhoods/segments",

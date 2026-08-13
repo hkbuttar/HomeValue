@@ -1,15 +1,23 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { predictValue } from "@/lib/api";
+import { FormEvent, useEffect, useState } from "react";
+import { getRecords, predictValue } from "@/lib/api";
 import type { ValuationResponse } from "@/lib/types";
 
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+type NeighborhoodOption = { neighborhood_id: string; label: string };
 
 export default function ValuationPage() {
   const [result, setResult] = useState<ValuationResponse | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
+  const [neighborhoodError, setNeighborhoodError] = useState("");
+  useEffect(() => {
+    getRecords("/valuation/neighborhoods")
+      .then((value) => setNeighborhoods(value.records as NeighborhoodOption[]))
+      .catch((reason: Error) => setNeighborhoodError(reason.message));
+  }, []);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setLoading(true); setError("");
     const values = Object.fromEntries(new FormData(event.currentTarget));
@@ -21,7 +29,13 @@ export default function ValuationPage() {
     <section className="shell page-grid">
       <div className="page-intro"><p className="eyebrow">Property valuation</p><h1>Tell us about the home.</h1><p>We’ll connect its physical character to the market around it—and show the evidence behind the estimate.</p></div>
       <form className="valuation-form" onSubmit={submit}>
-        <label className="field-wide">Neighborhood or assessor area<input name="neighborhood" placeholder="e.g. 70" /></label>
+        <label className="field-wide">Neighborhood
+          <select name="neighborhood" defaultValue="">
+            <option value="">Use countywide context</option>
+            {neighborhoods.map((option) => <option key={option.neighborhood_id} value={option.neighborhood_id}>{option.label}</option>)}
+          </select>
+        </label>
+        {neighborhoodError && <p className="form-error field-wide">Neighborhood list unavailable: {neighborhoodError}</p>}
         <label>Building area<input required name="building_sqft" type="number" min="1" placeholder="1,850 sq ft" /></label>
         <label>Land area<input name="land_sqft" type="number" min="1" placeholder="3,125 sq ft" /></label>
         <label>Bedrooms<input name="bedrooms" type="number" min="0" step="1" placeholder="3" /></label>

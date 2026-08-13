@@ -92,6 +92,30 @@ def _geography(frame: pd.DataFrame) -> str:
     raise HTTPException(status_code=500, detail="Neighborhood artifact has no geography field")
 
 
+def _neighborhood_options(frame: pd.DataFrame) -> list[dict]:
+    if "nbhd" not in frame:
+        raise HTTPException(status_code=500, detail="Valuation artifact has no neighborhood field")
+    working = frame.loc[frame["nbhd"].notna()].copy()
+    working["neighborhood_id"] = working["nbhd"].astype("string")
+    place = pd.Series(pd.NA, index=working.index, dtype="string")
+    for column in ("community_area", "municipality"):
+        if column in working:
+            candidate = working[column].astype("string").str.strip()
+            place = place.fillna(candidate.where(candidate.str.len().gt(0)))
+    working["place_name"] = place.fillna("Cook County")
+    counts = (
+        working.groupby(["neighborhood_id", "place_name"], observed=True)
+        .size().rename("sale_count").reset_index()
+        .sort_values(["neighborhood_id", "sale_count", "place_name"], ascending=[True, False, True])
+    )
+    primary = counts.drop_duplicates("neighborhood_id").copy()
+    primary["name"] = primary["place_name"].str.title()
+    primary["label"] = primary["name"] + " — area " + primary["neighborhood_id"]
+    return _records(primary.sort_values(["name", "neighborhood_id"])[
+        ["neighborhood_id", "name", "label", "sale_count"]
+    ])
+
+
 def _build_engine(settings: APISettings) -> HomeValueEngine:
     optional_stations = settings.path("cta_accessibility/cta_rail_stations.parquet")
     optional_profiles = settings.path("segmentation/neighborhood_segments.parquet")
@@ -134,6 +158,14 @@ def create_app(settings: APISettings | None = None, engine: HomeValueEngine | No
     @app.post("/valuation/predict", response_model=ValuationResponse)
     def predict(request: ValuationRequest):
         return valuation_engine().predict(request)
+
+    @app.get("/valuation/neighborhoods", response_model=RecordCollection)
+    def valuation_neighborhoods():
+        frame = repository.parquet("accessibility/core_sales_with_accessibility.parquet")
+        records = _neighborhood_options(frame)
+        return RecordCollection(
+            count=len(records), offset=0, limit=min(500, max(1, len(records))), records=records
+        )
 
     @app.get("/market/summary", response_model=MarketOverviewResponse)
     def market_summary():
