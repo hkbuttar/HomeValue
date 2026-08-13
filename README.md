@@ -461,6 +461,19 @@ Outputs include feature-level dollar attributions, reconciled component
 summaries, and the reference market profile. See the
 [property-place attribution methodology](explainability/PROPERTY_PLACE.md).
 
+## Step 32: transit premium robustness
+
+Stress-test the CTA-distance association across controls, spatial dependence,
+nonlinearity, and geographic subsets:
+
+```bash
+python -m transit.robustness
+```
+
+Outputs include a specification ladder, full coefficient audit, robustness
+plot, and an explicit conclusion about attenuation after neighborhood controls.
+See the [transit robustness methodology](transit/ROBUSTNESS.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
