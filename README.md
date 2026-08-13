@@ -385,6 +385,19 @@ Outputs include aligned neighborhood segment histories, conditional transition
 matrices, persistence rates, and consecutive-period adjusted Rand indices. See
 [the stability methodology](segmentation/STABILITY.md).
 
+## Step 26: out-of-time validation
+
+Select models on later sales and evaluate them on an untouched most-recent
+period:
+
+```bash
+python -m validation.out_of_time
+```
+
+Outputs include validation predictions, final-test predictions, fitted models,
+and separate metrics for all three nonlinear valuation families. See the
+[out-of-time validation methodology](validation/OUT_OF_TIME.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
