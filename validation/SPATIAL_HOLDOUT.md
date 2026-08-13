@@ -1,6 +1,6 @@
 # Spatial holdout validation
 
-Step 27 compares ordinary shuffled folds, a future-period holdout, and grouped
+This analysis compares ordinary shuffled folds, a future-period holdout, and grouped
 geographic folds. Geographic folds keep every sale from the same tract,
 assessor neighborhood, or municipality on one side of a split.
 

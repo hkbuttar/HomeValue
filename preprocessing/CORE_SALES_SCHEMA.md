@@ -18,5 +18,4 @@ cards in the selected year. Cards are aggregated per sale as follows:
 
 The schema report records every output column, dtype, missing count, and missing
 rate. Features absent from the source are left missing or omitted; accessibility
-and market-index features are not fabricated before their dedicated steps.
-
+and market-index features are not fabricated before their dedicated pipelines run.

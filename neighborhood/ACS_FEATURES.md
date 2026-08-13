@@ -16,5 +16,5 @@ unavailable; no area is inferred from parcel geometry.
 The feature report includes missingness, absolute pairwise correlations above
 0.8, and variance inflation factors where the sample permits them. These are
 diagnostics for feature selection, not automatic deletion rules. ACS vintage and
-lag remain governed by the Step 3 historical-alignment policy.
+lag remain governed by the historical-alignment policy.
 

@@ -1,6 +1,6 @@
 # Hedonic price model
 
-The Step 8 model estimates OLS on log recorded sale price. Candidate structural
+The model estimates OLS on log recorded sale price. Candidate structural
 features are log building area, log land area, bedrooms, bathrooms, building
 age, stories, garage spaces, and basement presence. Features without sufficient
 training observations are omitted; retained numeric missing values use training

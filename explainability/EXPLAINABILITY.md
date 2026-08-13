@@ -1,6 +1,6 @@
 # Cross-method explainability
 
-Step 30 places the project's explanations on a common footing. Hedonic output
+This analysis places the project's explanations on a common footing. Hedonic output
 retains coefficients, robust confidence intervals, and interpretable marginal
 effects. Spatial output retains parameters and direct, indirect, and total
 multipliers. ML output includes raw-feature permutation importance, aggregated

@@ -1,6 +1,6 @@
 # Prior-only spatial ML features
 
-Step 21 constructs local market features only from transactions whose recorded
+This analysis constructs local market features only from transactions whose recorded
 sale date is strictly earlier than the target. The target PIN is excluded even
 when it sold previously. Coordinates are projected to EPSG:3435 before a
 one-mile default search.
@@ -16,5 +16,5 @@ being presented as local trends.
 
 Every contributing target/prior-sale link is persisted for auditing. The report
 asserts the temporal inequality across all links. The enriched output feeds
-directly into the Step 20 `prior_spatial` feature allowlist.
+directly into the `prior_spatial` feature allowlist.
 

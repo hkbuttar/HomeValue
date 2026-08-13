@@ -1,11 +1,11 @@
 # CTA accessibility premium analysis
 
-Step 13 estimates four distance specifications on the same sales and future
+This analysis estimates four distance specifications on the same sales and future
 holdout: linear miles, fixed distance bands, a cubic regression spline, and a
 quantile-knot B-spline as a GAM-style smooth. The bands are 0–0.25, 0.25–0.50,
 0.50–1.00, 1.00–2.00, and over 2 miles; the last is the regression reference.
 
-Each model controls for the Step 8 structural features, property type, assessor
+Each model controls for the structural features, property type, assessor
 neighborhood, sale month, and market trend. OLS is fit to log price with HC3
 robust uncertainty, while dollar predictions use training-residual smearing and
 are evaluated strictly out of time.

@@ -168,7 +168,7 @@ def analyze_gradients(
     required = {"lake_distance_miles", "downtown_distance_miles", "cta_distance_miles"}
     if missing := sorted(required.difference(frame.columns)):
         raise ValueError(
-            f"gradient analysis is missing {', '.join(missing)}; run Steps 11-12 first"
+            f"gradient analysis is missing {', '.join(missing)}; build accessibility features first"
         )
     valid = pd.to_numeric(frame["sale_price"], errors="coerce").gt(0)
     for column in required:
@@ -266,4 +266,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

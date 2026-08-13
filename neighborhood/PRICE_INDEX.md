@@ -1,6 +1,6 @@
 # Neighborhood price indices
 
-Step 23 builds three complementary annual neighborhood series:
+This analysis builds three complementary annual neighborhood series:
 
 - median PPSF index, retained as a transparent transaction-mix measure;
 - property-adjusted index based on median residual log price after a pooled

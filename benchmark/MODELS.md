@@ -1,6 +1,6 @@
 # Main model benchmark
 
-Step 34 assembles median, PPSF, comparable-sales, hedonic, spatial-lag,
+This analysis assembles median, PPSF, comparable-sales, hedonic, spatial-lag,
 spatial-error, and gradient-boosting results into one audit table.
 
 ```bash

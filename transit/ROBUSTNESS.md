@@ -1,6 +1,6 @@
 # CTA premium robustness
 
-Step 32 estimates a predeclared robustness ladder: property controls, year
+This analysis estimates a predeclared robustness ladder: property controls, year
 effects, neighborhood controls, ACS context, spatial dependence, nonlinear
 distance, and alternative geographic subsets.
 

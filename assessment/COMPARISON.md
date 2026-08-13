@@ -1,6 +1,6 @@
 # Assessor comparison (optional extension)
 
-Step 37 matches sales to Cook County assessed values by normalized 14-digit PIN
+This analysis matches sales to Cook County assessed values by normalized 14-digit PIN
 and exact year. It prioritizes Board of Review totals, then certified totals,
 then mailed totals.
 

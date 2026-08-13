@@ -87,7 +87,7 @@ def _distance_column(frame: pd.DataFrame) -> str:
     for column in ("cta_distance_miles", "cta_distance"):
         if column in frame:
             return column
-    raise ValueError("input has no CTA distance feature; run Step 11 first")
+    raise ValueError("input has no CTA distance feature; run the relevant upstream analysis first")
 
 
 def _fit_specification(

@@ -1,6 +1,6 @@
 # Amenity accessibility
 
-Step 12 uses two official City of Chicago geometry layers: Chicago Park District
+This analysis uses two official City of Chicago geometry layers: Chicago Park District
 properties (`ejsh-fztr`) and Hydro (`knfe-65pw`). Downloads are bounded GeoJSON
 extracts with a timestamp, URL, row count, and SHA-256 manifest. Downtown is an
 explicit point reference at Chicago City Hall (`41.8837, -87.6325`) because the

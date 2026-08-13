@@ -1,6 +1,6 @@
 # Spatial lag model
 
-Step 16 estimates maximum-likelihood SAR on log sale price using the same
+This analysis estimates maximum-likelihood SAR on log sale price using the same
 single-year, one-sale-per-PIN cross-section as the autocorrelation audit. The
 default spatial weights are row-standardized eight-nearest neighbors in
 EPSG:3435. Exact constant and collinear design columns are removed before fit.
@@ -17,5 +17,5 @@ the report and reflects a comparable-sales deployment setting.
 
 Rho indicates conditional spatial dependence, not automatically causal price
 interaction. Shared omitted location characteristics can produce the same
-pattern, motivating the spatial-error comparison in Step 17.
+pattern, motivating the spatial-error comparison in the relevant upstream analysis.
 

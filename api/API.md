@@ -1,6 +1,6 @@
 # FastAPI backend
 
-Step 41 exposes the unified valuation engine and read-only research artifacts
+This analysis exposes the unified valuation engine and read-only research artifacts
 through typed endpoints:
 
 ```bash

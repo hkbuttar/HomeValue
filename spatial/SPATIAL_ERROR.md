@@ -1,6 +1,6 @@
 # Spatial error model
 
-Step 17 estimates maximum-likelihood SEM on the same log-price cross-section,
+This analysis estimates maximum-likelihood SEM on the same log-price cross-section,
 hedonic design, and row-standardized KNN weights as OLS and SAR. Lambda measures
 spatial correlation in the model's error process, while rho in SAR measures
 conditional dependence in neighboring outcomes.

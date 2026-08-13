@@ -1,6 +1,6 @@
 # Segment stability over time
 
-Step 25 re-estimates neighborhood market segments in non-overlapping historical
+This analysis re-estimates neighborhood market segments in non-overlapping historical
 periods. Because cluster numbers have no inherent meaning, each period's labels
 are aligned to the preceding period by minimum centroid distance before changes
 are interpreted.

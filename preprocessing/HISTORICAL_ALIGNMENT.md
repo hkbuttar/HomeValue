@@ -18,6 +18,6 @@ Every match records its source year, lag, and one of these statuses:
 Default maximum lags are three years for property and parcel data and five years
 for ACS. Improvement cards are intentionally retained as multiple linked rows;
 their aggregation into one sale row belongs to construction of the core sales
-table in Step 4. Only `market` rows from Step 2 are aligned when the population
+table in the relevant upstream analysis. Only `market` rows from the relevant upstream analysis are aligned when the population
 label is present.
 

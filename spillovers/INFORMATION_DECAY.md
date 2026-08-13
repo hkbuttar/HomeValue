@@ -1,6 +1,6 @@
 # Spatial valuation-information decay
 
-Step 33 rebuilds leakage-safe comparable estimates at 0.25, 0.5, 1, and 2
+This analysis rebuilds leakage-safe comparable estimates at 0.25, 0.5, 1, and 2
 miles. Every comparable predates its target transaction.
 
 ```bash

@@ -1,6 +1,6 @@
 # Exploratory market analysis
 
-The Step 6 pipeline analyzes total sale price and price per square foot by year,
+The pipeline analyzes total sale price and price per square foot by year,
 municipality, property type/class, building age and size, assessor neighborhood,
 and census tract. PPSF is used only as a companion diagnostic.
 

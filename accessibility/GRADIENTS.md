@@ -1,6 +1,6 @@
 # Lakefront and downtown price gradients
 
-Step 14 estimates continuous linear, cubic regression-spline, and GAM-style
+This analysis estimates continuous linear, cubic regression-spline, and GAM-style
 B-spline gradients for distance to Lake Michigan and downtown. All forms use the
 same sales, structural features, property type, neighborhood controls, month
 effects, market trend, and future holdout.

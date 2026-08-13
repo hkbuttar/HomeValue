@@ -60,7 +60,7 @@ def run_decomposition(
         if name.startswith("D_") and not accessibility:
             models[name] = {
                 "status": "unavailable",
-                "reason": "No retained accessibility features are available; rerun after Steps 11-12.",
+                "reason": "No retained accessibility features are available; rerun after accessibility processing.",
             }
             continue
         config = HedonicConfig(
@@ -149,4 +149,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

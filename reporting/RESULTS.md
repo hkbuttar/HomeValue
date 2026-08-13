@@ -1,6 +1,6 @@
 # Results and honest comparison
 
-Step 38 synthesizes the prior analysis artifacts into explicit answers to all
+This analysis synthesizes the prior analysis artifacts into explicit answers to all
 thirteen research questions.
 
 ```bash

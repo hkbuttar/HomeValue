@@ -1,6 +1,6 @@
 # Out-of-time validation
 
-Step 26 uses strictly ordered training, later-validation, and final-test
+This analysis uses strictly ordered training, later-validation, and final-test
 samples. The final-test sample does not influence preprocessing or model
 selection.
 

@@ -1,6 +1,6 @@
 # Local comparable-sales engine
 
-Step 19 searches in projected EPSG:3435 coordinates and requires every
+This analysis searches in projected EPSG:3435 coordinates and requires every
 comparable transaction to predate its target strictly. The target PIN itself is
 always excluded. Comparables must match broad property type and satisfy explicit
 distance, recency, log-square-footage, and building-age constraints.

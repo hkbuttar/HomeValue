@@ -1,6 +1,6 @@
 # Transaction-filter sensitivity
 
-Step 36 uses Cook County's sale-quality indicators to define two auditable
+This analysis uses Cook County's sale-quality indicators to define two auditable
 samples. Strict sales require explicitly clean flags, single-family class,
 non-multisale status, complete core fields, and a $25,000 floor. Moderate sales
 allow missing flag metadata and small multifamily classes, but no explicit

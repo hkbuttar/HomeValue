@@ -1,6 +1,6 @@
 # Statistical rigor audit
 
-Step 35 turns the project's validation principles into a machine-readable audit.
+This analysis turns the project's validation principles into a machine-readable audit.
 
 ```bash
 python -m validation.rigor

@@ -1,6 +1,6 @@
 # Calibration and valuation intervals
 
-Step 29 builds split-conformal valuation ranges from absolute log residuals in
+This analysis builds split-conformal valuation ranges from absolute log residuals in
 the validation period. It then measures interval coverage on the untouched
 final-test period.
 

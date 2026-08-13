@@ -1,6 +1,6 @@
 # Property versus neighborhood decomposition
 
-Step 9 fits nested log-price models on an identical training sample and compares
+This analysis fits nested log-price models on an identical training sample and compares
 them on an identical future holdout:
 
 - A: structural property features and broad property type;
@@ -13,10 +13,9 @@ sample MAE and RMSE improvements. Positive error improvement means the larger
 model predicted the future holdout more accurately.
 
 Model D is deliberately marked unavailable when accessibility features have not
-yet been constructed. It activates automatically after Steps 11-12 provide at
+yet been constructed. It activates automatically after accessibility processing provides at
 least one supported distance or station-count feature; no placeholder values are
 fabricated.
 
 This decomposition quantifies incremental predictive information and conditional
 association. It does not identify a causal neighborhood or accessibility effect.
-

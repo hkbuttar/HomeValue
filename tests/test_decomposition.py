@@ -28,5 +28,4 @@ def test_accessibility_model_is_explicitly_unavailable_before_features_exist(tmp
     report = run_decomposition(source, tmp_path / "out", minimum_category_count=2)
     unavailable = report["models"]["D_property_market_neighborhood_accessibility"]
     assert unavailable["status"] == "unavailable"
-    assert "Steps 11-12" in unavailable["reason"]
-
+    assert "accessibility processing" in unavailable["reason"]

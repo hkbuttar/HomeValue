@@ -1,6 +1,6 @@
 # Conditional Spatial Durbin robustness model
 
-Step 18 is gated. By default SDM is estimated only when the Step 17 report shows
+This analysis is gated. By default SDM is estimated only when the report shows
 at least one of: significant SAR rho, significant SEM lambda, or positive and
 significant OLS residual Moran's I at the configured 5% level. Otherwise the
 pipeline writes a `skipped_not_justified` report and stops. `--force` is an

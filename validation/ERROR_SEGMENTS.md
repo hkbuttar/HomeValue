@@ -1,6 +1,6 @@
 # Error by market segment
 
-Step 28 decomposes held-out valuation errors by price decile, property type,
+This analysis decomposes held-out valuation errors by price decile, property type,
 neighborhood, municipality, building age, transit distance, time, market
 archetype, and urban/suburban context whenever those fields are available.
 

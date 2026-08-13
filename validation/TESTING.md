@@ -1,6 +1,6 @@
 # Testing and validation
 
-Step 39 maintains small, deterministic tests for the full analytical contract:
+This analysis maintains small, deterministic tests for the full analytical contract:
 
 - PIN normalization, duplicate handling, positive sale prices, and market-sale filters;
 - historical property/ACS alignment without future leakage;

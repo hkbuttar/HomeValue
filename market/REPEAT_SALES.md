@@ -1,6 +1,6 @@
 # Repeat-sales analysis
 
-Step 22 orders valid transactions within PIN and pairs each sale with its
+This analysis orders valid transactions within PIN and pairs each sale with its
 immediately preceding sale. Same-PIN same-day records are removed because their
 order is indeterminate. Outputs report holding period, total log/percentage
 change, and continuously compounded annualized appreciation.

@@ -1,6 +1,6 @@
 # Property versus place attribution
 
-Step 31 decomposes an individual fitted-model estimate into a reference-market
+This analysis decomposes an individual fitted-model estimate into a reference-market
 baseline plus property, place, and time/market contributions.
 
 ```bash

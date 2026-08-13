@@ -1,6 +1,6 @@
 # Nonlinear valuation models
 
-Step 20 trains Random Forest, HistGradientBoosting, and XGBoost on an identical
+This analysis trains Random Forest, HistGradientBoosting, and XGBoost on an identical
 future-year holdout. All models predict log sale price and use a training-
 residual smearing factor for dollar predictions.
 

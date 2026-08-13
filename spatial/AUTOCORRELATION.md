@@ -1,6 +1,6 @@
 # Spatial autocorrelation audit
 
-Step 15 uses a single sale-year cross-section and retains only the latest sale
+This analysis uses a single sale-year cross-section and retains only the latest sale
 per PIN in that year. This avoids treating the same property at different dates
 as independent spatial neighbors. Very large cross-sections are reproducibly
 capped at 25,000 observations for tractable permutation inference.

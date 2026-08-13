@@ -1,623 +1,266 @@
-# HomeValue
-
-Chicago housing valuation and spatial market intelligence built from recorded
-Cook County parcel sales.
-
-## Step 1: environment and data acquisition
-
-The repository currently implements the acquisition foundation. Large Cook
-County tables are queried through Socrata by year and selected columns, paged in
-bounded chunks, and written as partitioned Parquet files. The 50M-row Parcel
-Universe is never loaded in full.
-
-### Setup
-
-Python 3.11 or 3.12 is recommended. Geospatial wheels are easiest to install in
-a fresh virtual environment:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m pip install -r requirements-dev.txt
-```
-
-An unauthenticated Socrata request works for small pulls. For sustained pulls,
-create an app token and export it (never commit it):
-
-```bash
-export SOCRATA_APP_TOKEN="..."
-# Optional, but avoids the Census API's shared unauthenticated quota:
-export CENSUS_API_KEY="..."
-```
-
-### Acquire data
-
-Run a small, safe smoke pull first:
-
-```bash
-python -m preprocessing.acquire cook-county --dataset sales --years 2023 --limit 1000
-python -m preprocessing.acquire cook-county --dataset characteristics --years 2023 --limit 1000
-python -m preprocessing.acquire cook-county --dataset parcels --years 2023 --limit 1000
-python -m preprocessing.acquire acs --year 2023
-python -m preprocessing.acquire cta
-```
-
-For a real bounded pull, omit `--limit` and choose only needed years. Parcel
-Universe can additionally be constrained to residential PINs saved by the sales
-pull:
-
-```bash
-python -m preprocessing.acquire cook-county --dataset sales --years 2019:2023
-python -m preprocessing.acquire cook-county --dataset parcels --years 2019:2023 \
-  --pins-from data/raw/cook_county/sales
-```
-
-Outputs live under `data/raw/<source>/`, partitioned by year where applicable.
-Each run writes a JSON manifest recording source URL, query, timestamp, row
-count, and SHA-256 hashes. Raw data is gitignored; directory marker files remain.
-
-Use `python -m preprocessing.acquire --help` for all options. Tests do not use
-the network:
-
-```bash
-pytest
-```
-
-### Primary data sources
-
-- [Cook County Assessor — Parcel Sales](https://datacatalog.cookcountyil.gov/resource/wvhk-k5uv.json)
-- [Cook County Assessor — Single and Multi-Family Improvement Characteristics](https://datacatalog.cookcountyil.gov/resource/x54s-btds.json)
-- [Cook County Assessor — Parcel Universe](https://datacatalog.cookcountyil.gov/resource/nj4t-kc8j.json)
-- [Census ACS 5-year API](https://www.census.gov/data/developers/data-sets/acs-5year.html)
-- [CTA GTFS](https://www.transitchicago.com/developers/gtfs/)
-
-PINs are read and stored as strings and normalized to exactly 14 digits.
-
-## Step 2: analytical population
-
-Classify every raw sale without silently dropping records:
-
-```bash
-python -m preprocessing.population
-```
-
-This writes a year-partitioned table to
-`data/processed/residential_sales_population`. Each row is labeled `market`,
-`ambiguous`, or `excluded`, with machine-readable reasons. The primary market
-population defaults to single-family homes and townhouses. Small multi-family
-classes can be included for a separate sensitivity run:
-
-```bash
-python -m preprocessing.population --include-small-multifamily \
-  --output data/processed/residential_sales_population_with_multifamily
-```
-
-See [the complete population rules](preprocessing/POPULATION_RULES.md) for
-class definitions, precedence, and every exclusion rule.
-
-## Step 3: historical alignment
-
-Align market sales with contemporaneous or earlier property, parcel, and ACS
-snapshots:
-
-```bash
-python -m preprocessing.historical
-```
-
-The command writes linked sales, improvement-card, parcel, and ACS Parquet
-tables plus an alignment report under `data/processed/historical_alignment`.
-Every match includes its vintage, lag, and status. Future snapshots are never
-used unless `--allow-future-snapshots` is explicitly supplied, in which case
-they are labeled `current_state_future`.
-
-See [the historical alignment policy](preprocessing/HISTORICAL_ALIGNMENT.md).
-
-## Step 4: canonical core sales table
-
-Aggregate property cards and join the historically aligned sources into one row
-per market sale:
-
-```bash
-python -m preprocessing.core_sales
-```
-
-This writes `data/processed/core_sales.parquet` and a schema report containing
-column types and missingness. Property, location, tract-neighborhood, and basic
-calendar-market features are included when present in the acquired sources.
-See [the core table construction rules](preprocessing/CORE_SALES_SCHEMA.md).
-
-## Step 5: data-quality audit
-
-Run the formal audit before modeling:
-
-```bash
-python -m preprocessing.quality
-```
-
-Outputs under `data/processed/quality` include a browsable
-`data_quality_report.html`, full JSON metrics, and a Parquet copy of the sales
-with non-destructive `dq_*` flags. See [the audit methodology](preprocessing/DATA_QUALITY.md).
-
-## Step 6: exploratory market analysis
-
-Generate grouped summaries, repeat-sale diagnostics, charts, and the spatial
-market overview:
-
-```bash
-python -m market.exploratory
-```
-
-Results are written under `data/processed/exploration`, including
-`market_exploration.html`, CSV tables, and PNG figures. See the
-[exploration methodology](market/EXPLORATION.md).
-
-## Step 7: baseline valuation models
-
-Train and evaluate the four simple benchmarks with a held-out future period:
-
-```bash
-python -m ml.baselines
-# Or reserve multiple recent years:
-python -m ml.baselines --test-start-year 2022
-```
-
-Predictions, metrics, and fitted median lookup tables are written under
-`data/processed/baselines`. See [the baseline methodology](ml/BASELINES.md).
-
-## Step 8: hedonic price model
-
-Fit the interpretable log-price regression and evaluate it out of time:
-
-```bash
-python -m hedonic.model
-```
-
-Predictions, robust coefficient estimates, confidence intervals, model schema,
-and evaluation metrics are written under `data/processed/hedonic`. See the
-[hedonic model methodology](hedonic/HEDONIC_MODEL.md).
-
-## Step 9: property versus neighborhood decomposition
-
-Fit the nested property, market, neighborhood, and accessibility specifications:
-
-```bash
-python -m hedonic.decomposition
-```
-
-The output directly reports the incremental R², adjusted R², future-period MAE,
-and RMSE contributed by each feature group. Model D remains explicitly
-unavailable until accessibility features exist. See the
-[decomposition methodology](hedonic/DECOMPOSITION.md).
-
-## Step 10: ACS neighborhood layer
-
-Engineer the limited tract-level socioeconomic, housing, and commuting feature
-set and inspect its multicollinearity diagnostics:
-
-```bash
-python -m neighborhood.acs
-```
-
-Outputs include the ACS feature table, an ACS-enriched core sales table, and a
-JSON coverage/correlation/VIF report under `data/processed/acs_neighborhood`.
-See [the ACS feature methodology](neighborhood/ACS_FEATURES.md).
-
-## Step 11: CTA rail accessibility
-
-Build projected nearest-station distances, station counts, and nearest-line
-features from the acquired CTA GTFS feed:
-
-```bash
-python -m accessibility.cta
-```
-
-Outputs under `data/processed/cta_accessibility` include the station table,
-sale-level features, an enriched core table, and a coverage report. See the
-[CTA accessibility methodology](accessibility/CTA_FEATURES.md).
-
-## Step 12: amenity accessibility
-
-Acquire the official Chicago geometry extracts, then add lake, downtown, and
-major-park distances to the CTA-enriched table:
-
-```bash
-python -m accessibility.amenities acquire
-python -m accessibility.amenities build
-```
-
-Outputs under `data/processed/accessibility` include sale-level features, the
-combined accessibility-enriched core table, and a provenance/coverage report.
-See [the amenity accessibility methodology](accessibility/AMENITY_FEATURES.md).
-
-## Step 13: CTA accessibility premium
-
-Compare linear, banded, cubic-spline, and GAM-style CTA distance effects using
-the same future holdout:
-
-```bash
-python -m transit.premium
-```
-
-Outputs under `data/processed/cta_premium` include predictions, robust
-coefficients, premium curves with confidence intervals, a chart, and evidence
-flags. See [the CTA premium methodology](transit/CTA_PREMIUM.md).
-
-## Step 14: lakefront and downtown gradients
-
-Estimate continuous linear and nonlinear price gradients for Lake Michigan and
-downtown proximity:
-
-```bash
-python -m accessibility.gradients
-```
-
-Outputs under `data/processed/amenity_gradients` include predictions, robust
-coefficients, gradient curves, a comparison chart, lakefront decay, and the
-joint downtown-distance test. See [the gradient methodology](accessibility/GRADIENTS.md).
-
-## Step 15: spatial autocorrelation
-
-Test spatial clustering in prices, PPSF, and controlled hedonic residuals:
-
-```bash
-python -m spatial.autocorrelation
-# Optional tract-adjacency alternative:
-python -m spatial.autocorrelation --tract-polygons path/to/tracts.geojson
-```
-
-Outputs include Moran's I results, the spatial audit sample, scatter plots, and
-the residual-dependence conclusion. See the
-[spatial autocorrelation methodology](spatial/AUTOCORRELATION.md).
-
-## Step 16: spatial lag model
-
-Estimate the SAR model and compare it with hedonic OLS:
-
-```bash
-python -m spatial.lag_model
-```
-
-Outputs include rho and impact multipliers, OLS/SAR fit and residual-dependence
-comparisons, spatial-block predictions, and future deployment cautions. See the
-[spatial lag methodology](spatial/SPATIAL_LAG.md).
-
-## Step 17: spatial error model
-
-Estimate SEM and compare the OLS, SAR, and SEM explanations of spatial
-dependence:
-
-```bash
-python -m spatial.error_model
-```
-
-Outputs include lambda and rho inference, common fit and residual diagnostics,
-spatial-block predictions for all three models, and a cautious mechanism
-assessment. See [the spatial error methodology](spatial/SPATIAL_ERROR.md).
-
-## Step 18: conditional Spatial Durbin robustness model
-
-Run the diagnostics-gated SDM extension:
-
-```bash
-python -m spatial.durbin_model
-# Explicit sensitivity override:
-python -m spatial.durbin_model --force
-```
-
-The command skips cleanly when earlier spatial evidence is insufficient. When
-justified, it writes SAR/SDM comparisons, WX coefficients, impact multipliers,
-and spatial-block predictions. See [the SDM methodology](spatial/SPATIAL_DURBIN.md).
-
-## Step 20: nonlinear valuation models
-
-Train Random Forest, HistGradientBoosting, and XGBoost on the shared future
-holdout:
-
-```bash
-python -m ml.valuation
-```
-
-Outputs include held-out predictions, serialized preprocessing/models, metrics,
-approved feature groups, and comparisons with available earlier model artifacts.
-See [the ML valuation methodology](ml/VALUATION_MODELS.md).
-
-## Step 21: prior-only spatial ML features
-
-Build local price, PPSF, volume, and neighborhood-appreciation features from
-strictly earlier transactions:
-
-```bash
-python -m ml.spatial_features
-```
-
-Outputs include the feature table, every contributing prior-sale link, an
-enriched core table, and temporal-leakage validation. See the
-[spatial feature methodology](ml/SPATIAL_FEATURES.md).
-
-## Step 22: repeat-sales analysis
-
-Analyze consecutive same-property transactions and build the robustness index:
-
-```bash
-python -m market.repeat_sales
-```
-
-Outputs include repeat pairs, annual and neighborhood appreciation summaries, a
-simplified repeat-sales index and chart, and model-residual persistence when
-predictions are available. See [the repeat-sales methodology](market/REPEAT_SALES.md).
-
-## Step 23: neighborhood price indices
-
-Build median-PPSF, property-adjusted, and repeat-sales neighborhood indices:
-
-```bash
-python -m neighborhood.price_index
-```
-
-Outputs include the neighborhood-year panel, growth co-movement correlations,
-divergence rankings, a trajectory chart, and coverage diagnostics. See the
-[neighborhood index methodology](neighborhood/PRICE_INDEX.md).
-
-## Step 24: neighborhood market segmentation
-
-Cluster neighborhood market profiles and validate the archetypes:
-
-```bash
-python -m segmentation.neighborhoods
-```
-
-Outputs include neighborhood assignments, cluster profiles, silhouette model
-selection, bootstrap stability, post-fit archetype names, and a profile chart.
-See [the segmentation methodology](segmentation/NEIGHBORHOODS.md).
-
-## Step 25: segment stability over time
-
-Re-estimate neighborhood regimes over historical periods and quantify their
-longitudinal consistency:
-
-```bash
-python -m segmentation.stability
-```
-
-Outputs include aligned neighborhood segment histories, conditional transition
-matrices, persistence rates, and consecutive-period adjusted Rand indices. See
-[the stability methodology](segmentation/STABILITY.md).
-
-## Step 26: out-of-time validation
-
-Select models on later sales and evaluate them on an untouched most-recent
-period:
-
-```bash
-python -m validation.out_of_time
-```
-
-Outputs include validation predictions, final-test predictions, fitted models,
-and separate metrics for all three nonlinear valuation families. See the
-[out-of-time validation methodology](validation/OUT_OF_TIME.md).
-
-## Step 27: spatial holdout validation
-
-Compare random, future-period, and geographically grouped validation:
-
-```bash
-python -m validation.spatial_holdout
-```
-
-The benchmark creates grouped folds for tracts, assessor neighborhoods, and
-municipalities when available, then reports each model's error penalty relative
-to random folds. See the [spatial holdout methodology](validation/SPATIAL_HOLDOUT.md).
-
-## Step 28: error by market segment
-
-Audit held-out errors across property and market slices:
-
-```bash
-python -m validation.error_segments
-```
-
-Outputs include segment-level MAE, RMSE, median APE, signed percentage error,
-small-group reliability flags, and ranked failure modes. See the
-[segment error methodology](validation/ERROR_SEGMENTS.md).
-
-## Step 29: calibration and valuation intervals
-
-Turn point predictions into calibrated valuation ranges and test their actual
-coverage:
-
-```bash
-python -m validation.intervals
-```
-
-Outputs include sale-level conformal ranges, interval widths, calibration
-curves, and coverage by price group and neighborhood. See the
-[valuation interval methodology](validation/INTERVALS.md).
-
-## Step 30: explainability
-
-Compare what hedonic, spatial, and machine-learning models say drives value:
-
-```bash
-python -m explainability.report
-```
-
-Outputs include coefficient marginal effects, spatial parameters and
-multipliers, permutation and SHAP importance, partial dependence, and a
-cross-method agreement table. See the
-[explainability methodology](explainability/EXPLAINABILITY.md).
-
-## Step 31: property versus place attribution
-
-Decompose individual estimates into a reference baseline and model-derived
-property, place, and time/market contributions:
-
-```bash
-python -m explainability.property_place --sale-id SALE_ID
-```
-
-Outputs include feature-level dollar attributions, reconciled component
-summaries, and the reference market profile. See the
-[property-place attribution methodology](explainability/PROPERTY_PLACE.md).
-
-## Step 32: transit premium robustness
-
-Stress-test the CTA-distance association across controls, spatial dependence,
-nonlinearity, and geographic subsets:
-
-```bash
-python -m transit.robustness
-```
-
-Outputs include a specification ladder, full coefficient audit, robustness
-plot, and an explicit conclusion about attenuation after neighborhood controls.
-See the [transit robustness methodology](transit/ROBUSTNESS.md).
-
-## Step 33: spatial valuation-information decay
-
-Measure how far nearby-sale information remains predictively useful:
-
-```bash
-python -m spillovers.decay
-```
-
-The analysis compares 0.25, 0.5, 1, and 2-mile comparable radii, separating
-marginal accuracy gains from expanded coverage on a common target sample. See
-the [information-decay methodology](spillovers/INFORMATION_DECAY.md).
-
-## Step 34: main model benchmark
-
-Build the primary prediction-versus-explanation comparison table:
-
-```bash
-python -m benchmark.models
-```
-
-The table compares seven model families using predictive error, residual
-spatial autocorrelation, and temporal and spatial holdout availability. See the
-[model benchmark methodology](benchmark/MODELS.md).
-
-## Step 35: statistical rigor
-
-Audit uncertainty, stability, holdouts, and sensitivity evidence:
-
-```bash
-python -m validation.rigor
-```
-
-Outputs include bootstrap metric intervals, paired model comparisons,
-repeated-seed results, alternative spatial-weight diagnostics, sample
-sensitivity, and an eleven-item evidence checklist. See the
-[statistical rigor methodology](validation/RIGOR.md).
-
-## Step 36: transaction-filter sensitivity
-
-Re-estimate major findings under strict and moderate Cook County market-sale
-definitions:
-
-```bash
-python -m validation.filter_sensitivity
-```
-
-Outputs compare sample size, temporal valuation accuracy, robust coefficients,
-spatial dependence, and CTA/lake findings. See the
-[filter sensitivity methodology](validation/FILTER_SENSITIVITY.md).
-
-## Step 37: assessor comparison (optional)
-
-Compare aligned Cook County assessed market values with sales and HomeValue:
-
-```bash
-python -m assessment.comparison --assessments PATH_TO_ASSESSED_VALUES.parquet
-```
-
-Outputs include PIN/year match coverage, assessment errors by price and
-geography, and a same-sale model comparison. See the
-[assessment comparison methodology](assessment/COMPARISON.md).
-
-## Step 38: results and honest comparison
-
-Synthesize the evidence into thirteen explicitly classified conclusions:
+# HomeValue — Chicago Housing Valuation & Spatial Market Intelligence
+
+An explainable valuation research system built from recorded Cook County home
+sales, historical property records, neighborhood context, accessibility, and
+spatial market structure.
+
+> What determines the value of a home—the structure, the neighborhood,
+> accessibility, nearby properties, or the broader market?
+
+HomeValue answers that question with classical hedonic models, spatial
+econometrics, comparable sales, machine learning, calibrated uncertainty, and
+an interactive Next.js application backed by FastAPI.
+
+## Why HomeValue?
+
+Ordinary house-price prediction treats observations as independent. Housing is
+not: nearby homes share amenities, land markets, school access, transit, local
+expectations, and unobserved neighborhood conditions. Ignoring that dependence
+can leave spatially clustered errors, overstate confidence, and obscure whether
+a valuation comes from the building or its location.
+
+HomeValue therefore treats predictive accuracy and spatial explanation as
+separate but connected goals. Results are labeled **Robust**, **Suggestive**,
+**Exploratory**, or **Data-limited** rather than being presented as equally
+settled findings.
+
+## Research questions
+
+1. How much sale-price variation can property characteristics alone explain?
+2. How much additional information comes from neighborhood characteristics?
+3. Does CTA accessibility materially relate to value after controlling for location?
+4. How large and localized is the lakefront price gradient?
+5. Are hedonic-model residuals spatially autocorrelated?
+6. Do spatial econometric models materially improve on conventional hedonic OLS?
+7. Does machine learning outperform explicit spatial models?
+8. Does that advantage survive out-of-time testing?
+9. Does it survive geographic holdout testing?
+10. How far away can a comparable sale be before its information deteriorates?
+11. Which property types and neighborhoods are hardest to value?
+12. How stable are neighborhood housing-market archetypes over time?
+13. How much of an individual valuation is attributable to property versus place?
+
+Generate the evidence-synthesis report with:
 
 ```bash
 python -m reporting.results
 ```
 
-The generator writes JSON, Markdown, and a Jupyter research notebook, labeling
-each answer Robust, Suggestive, Exploratory, or Data-limited. See the
-[results methodology](reporting/RESULTS.md).
+## Data
 
-## Step 39: testing and validation
+The pipeline combines:
 
-Run the complete analytical and API-contract validation gate:
+- Cook County Assessor Parcel Sales
+- Single- and Multi-Family Improvement Characteristics
+- Cook County Parcel Universe
+- Census ACS five-year estimates
+- CTA GTFS stations and service geography
+- Chicago parks, shoreline, downtown, and auxiliary spatial layers
+
+Every PIN is stored as a string and normalized to 14 digits. Acquisition runs
+write manifests containing source URLs, queries, timestamps, row counts, and
+SHA-256 hashes. Raw data is excluded from version control and production images.
+
+Primary sources: [Cook County Parcel Sales](https://datacatalog.cookcountyil.gov/resource/wvhk-k5uv.json),
+[property characteristics](https://datacatalog.cookcountyil.gov/resource/x54s-btds.json),
+[Parcel Universe](https://datacatalog.cookcountyil.gov/resource/nj4t-kc8j.json),
+[Census ACS](https://www.census.gov/data/developers/data-sets/acs-5year.html), and
+[CTA GTFS](https://www.transitchicago.com/developers/gtfs/).
+
+## Data engineering
+
+```text
+Sale
+  × Historical Parcel
+  × Property
+  × Census Tract
+  × Transit
+  × Amenities
+  × Market
+```
+
+Sales are classified as market, ambiguous, or excluded without silently
+dropping records. Historical joins use contemporaneous or earlier snapshots to
+prevent future information leakage. The canonical analytical table contains one
+row per market sale and records match vintages, lags, and data-quality flags.
+
+Core pipeline commands:
 
 ```bash
-MPLCONFIGDIR=/tmp/homevalue-mpl LOKY_MAX_CPU_COUNT=8 python -m pytest -q
+python -m preprocessing.acquire --help
+python -m preprocessing.population
+python -m preprocessing.historical
+python -m preprocessing.core_sales
+python -m preprocessing.quality
 ```
 
-The suite includes exact synthetic geography, leakage, split-integrity,
-interval-coverage, and typed API-schema checks. See the
-[testing matrix](validation/TESTING.md).
+Detailed policies live in [population rules](preprocessing/POPULATION_RULES.md),
+[historical alignment](preprocessing/HISTORICAL_ALIGNMENT.md), and the
+[core-sales schema](preprocessing/CORE_SALES_SCHEMA.md).
 
-## Step 40: unified HomeValue engine
+## Chicago housing market
 
-Load the validated model, interval calibration, market context, explanations,
-and prior comparables through one inference interface:
+The exploratory layer profiles sale price, price per square foot, transaction
+volume, housing stock, repeat sales, and geographic variation. Annual
+neighborhood indices distinguish citywide movement from local trajectories.
+Run `python -m market.exploratory` and see the
+[market methodology](market/EXPLORATION.md).
 
-```python
-from engine import HomeValueEngine
+## Property model
+
+The interpretable baseline is an OLS hedonic model of log recorded sale price,
+with structural characteristics, property type, time, and controlled location
+features. Robust coefficient intervals and future-period errors keep
+explanation separate from in-sample fit. See the
+[hedonic methodology](hedonic/HEDONIC_MODEL.md).
+
+## Property versus place
+
+Nested models add market timing and neighborhood information to an identical
+property-only sample. Their held-out improvement measures incremental
+information; fitted-model attribution then reconciles each estimate into
+property and place contributions. See [model decomposition](hedonic/DECOMPOSITION.md)
+and [valuation attribution](explainability/PROPERTY_PLACE.md).
+
+## Spatial diagnostics
+
+Moran's I, permutation inference, multiple weight definitions, and mapped
+residuals test whether conventional-model errors cluster geographically. A
+significant pattern indicates omitted spatial structure, not its cause. See
+[spatial autocorrelation](spatial/AUTOCORRELATION.md).
+
+## Spatial econometrics
+
+Spatial autoregressive and spatial error models are compared with OLS on common
+samples. A conditional Spatial Durbin specification probes neighboring-feature
+spillovers only when diagnostics support it. See [SAR](spatial/SPATIAL_LAG.md),
+[SEM](spatial/SPATIAL_ERROR.md), and [SDM](spatial/SPATIAL_DURBIN.md).
+
+## Comparable sales
+
+The comps engine searches projected Chicago coordinates, uses only transactions
+recorded before the target sale, and combines distance, recency, and property
+similarity weights. Radius experiments quantify how spatial valuation
+information decays. See [comparable sales](spillovers/COMPARABLES.md) and
+[information decay](spillovers/INFORMATION_DECAY.md).
+
+## Machine learning
+
+Random Forest, histogram gradient boosting, and XGBoost benchmark nonlinear
+relationships. Prior-only local market features prevent future-sale leakage.
+Models use ordered validation and untouched final periods, plus geographic
+holdouts. See [valuation models](ml/VALUATION_MODELS.md) and
+[spatial features](ml/SPATIAL_FEATURES.md).
+
+## Accessibility
+
+CTA proximity and nonlinear lake, downtown, and park gradients are estimated
+with progressively richer controls and spatial robustness checks. These are
+conditional associations: accessibility can proxy for unobserved neighborhood
+attributes. See [CTA analysis](transit/CTA_PREMIUM.md) and
+[amenity gradients](accessibility/GRADIENTS.md).
+
+## Neighborhood dynamics
+
+Annual price indices and market profiles describe price level, appreciation,
+housing stock, accessibility, transaction activity, and model error.
+Longitudinal re-estimation measures whether data-driven market archetypes persist
+or transition over time. See [neighborhood segmentation](segmentation/NEIGHBORHOODS.md)
+and [stability analysis](segmentation/STABILITY.md).
+
+## Valuation uncertainty
+
+Split-conformal intervals transform held-out absolute log residuals into likely
+valuation ranges. Coverage is audited overall and by relevant market segments;
+the intervals describe model uncertainty, not every source of transaction risk.
+See [interval methodology](validation/INTERVALS.md).
+
+## Model benchmark
+
+Median, PPSF, comps, hedonic, spatial, and ML results are assembled with their
+sample and validation design. The report refuses to declare a universal winner
+when metrics come from incompatible holdouts. See the
+[benchmark methodology](benchmark/MODELS.md).
+
+## HomeValue application
+
+```text
+Next.js interface
+       │
+       ▼
+FastAPI research API
+       │
+       ├── Unified valuation engine
+       ├── Trained model artifacts
+       └── Precomputed Parquet and JSON outputs
 ```
 
-The engine returns a point estimate, calibrated range, reconciled property/place
-drivers, and strictly prior nearby sales. See the [engine design](engine/ENGINE.md).
-
-## Step 41: FastAPI backend
-
-Expose valuation and market intelligence through typed HTTP endpoints:
+The interface includes market, valuation, neighborhood, spatial, accessibility,
+and model-research views. Normal web requests never estimate spatial models or
+run large joins. Start development services with:
 
 ```bash
 uvicorn api.app:app --reload
+cd frontend && npm install && npm run dev
 ```
 
-Interactive OpenAPI documentation is available at `/docs`. See the
-[backend documentation](api/API.md).
+API documentation is available at `/docs`. See [API usage](api/API.md),
+[frontend setup](frontend/README.md), and the [engine design](engine/ENGINE.md).
 
-## Step 42: Next.js frontend
+## Reproducibility and validation
 
-Run the research-focused web interface:
+Python 3.11 or 3.12 and Node.js 20.9 or newer are recommended.
 
 ```bash
-cd frontend
-npm install
-npm run dev
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt -r requirements-dev.txt
+MPLCONFIGDIR=/tmp/homevalue-mpl LOKY_MAX_CPU_COUNT=8 python -m pytest -q
 ```
 
-The App Router interface includes Chicago market, valuation, neighborhood,
-spatial-lab, and research views backed by FastAPI. See
-[frontend setup](frontend/README.md).
+Tests cover identifiers, transaction filters, historical alignment, coordinate
+math, nearest neighbors, spatial weights, leakage, temporal and geographic
+splits, interval coverage, and API schemas. See the
+[validation matrix](validation/TESTING.md).
 
-## Step 43: lightweight deployment
+## Deployment
 
-Run the production-shaped FastAPI and Next.js containers against a read-only
-bundle of processed artifacts:
+The repository includes non-root FastAPI and Next.js images and a health-checked
+Compose stack. Mount only curated processed artifacts into production:
 
 ```bash
 docker compose up --build
 ```
 
-Raw historical data is excluded from both images. Production requests consume
-precomputed Parquet summaries, spatial outputs, and trained-model artifacts.
-See the [deployment guide](DEPLOYMENT.md).
+See the [deployment guide](DEPLOYMENT.md) for environment variables, artifact
+requirements, and payload limits.
 
-## Step 19: local comparable-sales engine
+## Limitations
 
-Build leakage-safe traditional comparable valuations:
+- Recorded price does not reveal every private transaction condition.
+- Property records can contain reporting and historical inconsistencies.
+- Some characteristics may not be perfectly contemporaneous with a sale.
+- ACS estimates contain sampling uncertainty.
+- Census tracts are imperfect neighborhood definitions.
+- Geographic associations are not causal effects.
+- Transit access may proxy for unobserved neighborhood attributes.
+- Spatial-weight definitions are modeling choices.
+- Cook County results may not generalize to other housing markets.
+- HomeValue estimates are research outputs, not appraisals.
 
-```bash
-python -m spillovers.comps
-```
+## Future work
 
-Outputs include sale-level predictions, every selected comparable and weight,
-coverage/fallback diagnostics, and latest-year metrics. See the
-[comparable-sales methodology](spillovers/COMPARABLES.md).
+- Building permits and renovation histories
+- School and richer transportation accessibility
+- Commercial land-use exposure
+- Mortgage-rate regime analysis
+- Assessment-equity research
+- Multi-city validation
+- Expanded repeat-sales indices
+
+## License and intended use
+
+This project is intended for research and educational use. Confirm source-data
+licenses and deployment terms before redistributing derived datasets or using
+the estimates in operational decisions.
