@@ -66,6 +66,15 @@ def _fit_gradient(
     test_design = pd.concat(
         [base._design(test), nuisance_test, basis.transform(test[distance_column])], axis=1
     )
+    # Nullable pandas dtypes can promote a concatenated design to object even
+    # when every value is numeric. Statsmodels requires a concrete numeric
+    # matrix, so normalize the completed train/test designs together.
+    train_design = train_design.apply(pd.to_numeric, errors="coerce").astype("float64")
+    test_design = test_design.apply(pd.to_numeric, errors="coerce").astype("float64")
+    if not np.isfinite(train_design.to_numpy()).all():
+        raise ValueError(f"{label} {kind} training design contains non-finite values")
+    if not np.isfinite(test_design.to_numpy()).all():
+        raise ValueError(f"{label} {kind} test design contains non-finite values")
     target = np.log(pd.to_numeric(train["sale_price"], errors="coerce"))
     ordinary = sm.OLS(target, train_design, missing="raise").fit()
     result = ordinary.get_robustcov_results(cov_type="HC3")

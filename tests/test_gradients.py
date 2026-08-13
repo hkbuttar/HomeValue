@@ -1,6 +1,7 @@
 import json
 
 import numpy as np
+import pandas as pd
 
 from accessibility.gradients import analyze_gradients
 from tests.test_hedonic import hedonic_frame
@@ -10,6 +11,9 @@ def test_lake_and_downtown_gradients_compare_nonlinear_forms(tmp_path):
     frame = hedonic_frame()
     frame["cta_distance_miles"] = 0.1 + (frame.index % 20) / 10
     frame["cta_stations_half_mile"] = (frame["cta_distance_miles"] <= 0.5).astype(int)
+    frame["cta_stations_half_mile"] = pd.array(
+        frame["cta_stations_half_mile"], dtype="Int64"
+    )
     frame["lake_distance_miles"] = 0.05 + (frame.index % 30) / 3
     frame["downtown_distance_miles"] = 0.5 + (frame.index % 30) / 2
     frame["sale_price"] *= np.exp(
@@ -29,4 +33,3 @@ def test_lake_and_downtown_gradients_compare_nonlinear_forms(tmp_path):
     assert (output / "lake_downtown_gradients.png").exists()
     parsed = json.loads((output / "gradient_results.json").read_text())
     assert parsed["test_start_year"] == 2021
-
