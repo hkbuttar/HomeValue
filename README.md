@@ -422,6 +422,19 @@ Outputs include segment-level MAE, RMSE, median APE, signed percentage error,
 small-group reliability flags, and ranked failure modes. See the
 [segment error methodology](validation/ERROR_SEGMENTS.md).
 
+## Step 29: calibration and valuation intervals
+
+Turn point predictions into calibrated valuation ranges and test their actual
+coverage:
+
+```bash
+python -m validation.intervals
+```
+
+Outputs include sale-level conformal ranges, interval widths, calibration
+curves, and coverage by price group and neighborhood. See the
+[valuation interval methodology](validation/INTERVALS.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
