@@ -165,3 +165,15 @@ python -m ml.baselines --test-start-year 2022
 
 Predictions, metrics, and fitted median lookup tables are written under
 `data/processed/baselines`. See [the baseline methodology](ml/BASELINES.md).
+
+## Step 8: hedonic price model
+
+Fit the interpretable log-price regression and evaluate it out of time:
+
+```bash
+python -m hedonic.model
+```
+
+Predictions, robust coefficient estimates, confidence intervals, model schema,
+and evaluation metrics are written under `data/processed/hedonic`. See the
+[hedonic model methodology](hedonic/HEDONIC_MODEL.md).
