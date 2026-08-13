@@ -323,6 +323,19 @@ Outputs include held-out predictions, serialized preprocessing/models, metrics,
 approved feature groups, and comparisons with available earlier model artifacts.
 See [the ML valuation methodology](ml/VALUATION_MODELS.md).
 
+## Step 21: prior-only spatial ML features
+
+Build local price, PPSF, volume, and neighborhood-appreciation features from
+strictly earlier transactions:
+
+```bash
+python -m ml.spatial_features
+```
+
+Outputs include the feature table, every contributing prior-sale link, an
+enriched core table, and temporal-leakage validation. See the
+[spatial feature methodology](ml/SPATIAL_FEATURES.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
