@@ -410,6 +410,18 @@ The benchmark creates grouped folds for tracts, assessor neighborhoods, and
 municipalities when available, then reports each model's error penalty relative
 to random folds. See the [spatial holdout methodology](validation/SPATIAL_HOLDOUT.md).
 
+## Step 28: error by market segment
+
+Audit held-out errors across property and market slices:
+
+```bash
+python -m validation.error_segments
+```
+
+Outputs include segment-level MAE, RMSE, median APE, signed percentage error,
+small-group reliability flags, and ranked failure modes. See the
+[segment error methodology](validation/ERROR_SEGMENTS.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:
