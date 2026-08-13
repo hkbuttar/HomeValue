@@ -583,6 +583,20 @@ uvicorn api.app:app --reload
 Interactive OpenAPI documentation is available at `/docs`. See the
 [backend documentation](api/API.md).
 
+## Step 42: Next.js frontend
+
+Run the research-focused web interface:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The App Router interface includes Chicago market, valuation, neighborhood,
+spatial-lab, and research views backed by FastAPI. See
+[frontend setup](frontend/README.md).
+
 ## Step 19: local comparable-sales engine
 
 Build leakage-safe traditional comparable valuations:

@@ -5,8 +5,10 @@ __pycache__/
 .ruff_cache/
 .env
 .DS_Store
+node_modules/
+.next/
+*.tsbuildinfo
 data/raw/**
 data/processed/**
 !data/raw/.gitkeep
 !data/processed/.gitkeep
-
