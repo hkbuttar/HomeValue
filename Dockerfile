@@ -6,7 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN addgroup --system homevalue && adduser --system --ingroup homevalue homevalue
+RUN addgroup --system homevalue && \
+    adduser --system --ingroup homevalue --home /home/homevalue \
+      --shell /bin/bash homevalue
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
