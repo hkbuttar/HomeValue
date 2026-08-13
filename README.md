@@ -203,3 +203,16 @@ python -m neighborhood.acs
 Outputs include the ACS feature table, an ACS-enriched core sales table, and a
 JSON coverage/correlation/VIF report under `data/processed/acs_neighborhood`.
 See [the ACS feature methodology](neighborhood/ACS_FEATURES.md).
+
+## Step 11: CTA rail accessibility
+
+Build projected nearest-station distances, station counts, and nearest-line
+features from the acquired CTA GTFS feed:
+
+```bash
+python -m accessibility.cta
+```
+
+Outputs under `data/processed/cta_accessibility` include the station table,
+sale-level features, an enriched core table, and a coverage report. See the
+[CTA accessibility methodology](accessibility/CTA_FEATURES.md).
