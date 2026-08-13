@@ -282,3 +282,16 @@ python -m spatial.lag_model
 Outputs include rho and impact multipliers, OLS/SAR fit and residual-dependence
 comparisons, spatial-block predictions, and future deployment cautions. See the
 [spatial lag methodology](spatial/SPATIAL_LAG.md).
+
+## Step 17: spatial error model
+
+Estimate SEM and compare the OLS, SAR, and SEM explanations of spatial
+dependence:
+
+```bash
+python -m spatial.error_model
+```
+
+Outputs include lambda and rho inference, common fit and residual diagnostics,
+spatial-block predictions for all three models, and a cautious mechanism
+assessment. See [the spatial error methodology](spatial/SPATIAL_ERROR.md).
