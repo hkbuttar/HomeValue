@@ -4,6 +4,8 @@ An explainable valuation research system built from recorded Cook County home
 sales, historical property records, neighborhood context, accessibility, and
 spatial market structure.
 
+**[Explore the live demo](https://home-value-beta.vercel.app/)**
+
 > What determines the value of a home—the structure, the neighborhood,
 > accessibility, nearby properties, or the broader market?
 
