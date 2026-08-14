@@ -89,7 +89,10 @@ def test_api_exposes_typed_valuation_and_research_endpoints(tmp_path):
     assert client.get("/models/errors").status_code == 200
     assert client.get("/accessibility/transit").status_code == 200
     assert client.get("/accessibility/lake").status_code == 200
-    assert client.get("/neighborhoods/segments").json()["count"] == 2
+    segments = client.get("/neighborhoods/segments").json()
+    assert segments["count"] == 2
+    assert segments["records"][0]["label"] == "Hyde Park — area N1"
+    assert segments["records"][1]["label"] == "Evanston — area N2"
 
 
 def test_api_documents_routes_and_handles_missing_engine_artifacts(tmp_path):

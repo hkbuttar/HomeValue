@@ -92,7 +92,7 @@ def _geography(frame: pd.DataFrame) -> str:
     raise HTTPException(status_code=500, detail="Neighborhood artifact has no geography field")
 
 
-def _neighborhood_options(frame: pd.DataFrame) -> list[dict]:
+def _neighborhood_name_frame(frame: pd.DataFrame) -> pd.DataFrame:
     if "nbhd" not in frame:
         raise HTTPException(status_code=500, detail="Valuation artifact has no neighborhood field")
     working = frame.loc[frame["nbhd"].notna()].copy()
@@ -111,9 +111,13 @@ def _neighborhood_options(frame: pd.DataFrame) -> list[dict]:
     primary = counts.drop_duplicates("neighborhood_id").copy()
     primary["name"] = primary["place_name"].str.title()
     primary["label"] = primary["name"] + " — area " + primary["neighborhood_id"]
-    return _records(primary.sort_values(["name", "neighborhood_id"])[
+    return primary.sort_values(["name", "neighborhood_id"])[
         ["neighborhood_id", "name", "label", "sale_count"]
-    ])
+    ]
+
+
+def _neighborhood_options(frame: pd.DataFrame) -> list[dict]:
+    return _records(_neighborhood_name_frame(frame))
 
 
 def _build_engine(settings: APISettings) -> HomeValueEngine:
@@ -251,6 +255,17 @@ def create_app(settings: APISettings | None = None, engine: HomeValueEngine | No
     @app.get("/neighborhoods/segments", response_model=RecordCollection)
     def segments(limit: int = Query(100, ge=1, le=500), offset: int = Query(0, ge=0)):
         frame = repository.parquet("segmentation/neighborhood_segments.parquet")
+        geography = _geography(frame)
+        names = _neighborhood_name_frame(
+            repository.parquet("accessibility/core_sales_with_accessibility.parquet")
+        ).drop(columns="sale_count")
+        names["neighborhood_id"] = names["neighborhood_id"].astype("string")
+        frame = frame.copy()
+        frame[geography] = frame[geography].astype("string")
+        frame = frame.merge(
+            names, left_on=geography, right_on="neighborhood_id",
+            how="left", validate="many_to_one",
+        )
         return RecordCollection(count=len(frame), offset=offset, limit=limit, records=_records(frame.iloc[offset:offset + limit]))
 
     return app
